@@ -1,4 +1,4 @@
-Deterministic 2D movement and world code for Godot 4, for games seen from above. It is the 2D counterpart of [dot-player-controller](https://github.com/modcommunity/dot-player-controller) and part of the [dot-*](https://github.com/modcommunity) family. It needs [dot-core](https://github.com/modcommunity/dot-core) and nothing else.
+Deterministic 2D movement and world code for Godot 4, for games seen from above. It is the 2D counterpart of [dot-player-controller](https://github.com/gamespice-platform/player-controller) and part of the [dot-*](https://github.com/gamespice-platform) family. It needs [dot-core](https://github.com/gamespice-platform/core) and nothing else.
 
 It gives you three movement feels (top-down, thrust, and mass-based blob), a spatial hash for fast neighbour queries, seeded pellet fields, and `Vector2` replication specs. [game-hungario](https://github.com/zees-games/game-hungario) is built on it.
 
