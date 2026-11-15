@@ -13,7 +13,7 @@ extends "res://examples/dot_2d_selftest_net.gd"
 ## should have found, a scatter field that lays out differently on two machines, and a
 ## client whose predicted move disagrees with the server's.
 
-const CHECKS := 177
+const CHECKS := 180
 
 ## Sections entered against sections that ran to their last line, and against this. A
 ## runtime error inside a section aborts that function and nothing says so; a section that
