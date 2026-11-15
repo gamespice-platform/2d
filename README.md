@@ -67,6 +67,12 @@ The sampler turns the pointer into a direction and a world-space distance before
 
 `Dot2DBodyFlat` is the one to use in production. It is analytic, and a client and a server get bit-identical answers. A physics query depends on solver state from earlier steps, so it cannot promise that. `Dot2DBodyPhysics` is for unpredicted entities and single-player games.
 
+## Limits
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `Dot2DMassRules.max_pieces` | 16 | Most pieces one player may have; 0 = unlimited, negative is refused by `validate()`. |
+
 ## Test
 
 ```bash

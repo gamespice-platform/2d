@@ -113,6 +113,13 @@ func _test_mass_rules() -> void:
 		"but never below the floor, or the leader simply stops playing"
 	)
 
+	_check(not rules.can_split(100.0, rules.max_pieces), "max_pieces stops a split")
+	rules.max_pieces = 0
+	_check(rules.can_split(100.0, 100000), "max_pieces 0 is unlimited")
+	rules.max_pieces = -1
+	_check(not rules.validate().ok, "a negative max_pieces is refused, not clamped")
+	rules.max_pieces = 16
+
 	# Eating: the ratio and the distance, both in one call.
 	var eater_radius := rules.radius_for(200.0)
 	_check(

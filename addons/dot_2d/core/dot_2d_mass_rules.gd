@@ -69,8 +69,8 @@ extends Resource
 
 @export_group("Splitting")
 
-## Most pieces one player may have.
-@export_range(1, 64, 1) var max_pieces: int = 16
+## Most pieces one player may have; 0 is unlimited, negative is refused.
+@export_range(0, 64, 1, "or_greater") var max_pieces: int = 16
 
 ## Mass a piece must have to split at all.
 @export_range(1.0, 1000.0, 1.0) var min_split_mass: float = 35.0
@@ -150,10 +150,16 @@ func decay(mass: float, delta: float) -> float:
 
 
 func can_split(mass: float, pieces: int) -> bool:
-	return pieces < max_pieces and mass >= min_split_mass
+	return (max_pieces == 0 or pieces < max_pieces) and mass >= min_split_mass
 
 
 func validate() -> DotResult:
+	if max_pieces < 0:
+		return DotResult.fail(
+			DotError.CODE_INVALID,
+			"max_pieces is %d; use 0 for unlimited, not a negative number." % max_pieces
+		)
+
 	if eat_ratio <= 1.0:
 		return DotResult.fail(
 			DotError.CODE_INVALID,
