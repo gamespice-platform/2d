@@ -3,7 +3,7 @@ extends RefCounted
 
 ## What a 2D player asked for on one tick.
 ##
-## The 2D counterpart of dot-player-controller's [code]DotFpsCommand[/code], and separate
+## The 2D counterpart of GameSpice Player Controller's [code]DotFpsCommand[/code], and separate
 ## from input sampling for the same reason: the simulation must be a pure function of
 ## these, so a client predicting a move and a server re-running it reach the same
 ## answer. Nothing in [Dot2DMotor] reads a device, a clock or a node.
@@ -123,8 +123,8 @@ func sanitise(max_reach: float = 1000.0) -> void:
 
 ## Writes to a [code]DotNetWriter[/code].
 ##
-## [param writer] is [Variant] so this file never mentions a dot-net class name — a
-## script that does fails to parse in a project without dot-net installed.
+## [param writer] is [Variant] so this file never mentions a GameSpice Net class name — a
+## script that does fails to parse in a project without GameSpice Net installed.
 ##
 ## The move and aim vectors go as two quantised components rather than as an angle and
 ## a magnitude: an angle needs a special case for the zero vector, and "not moving" is

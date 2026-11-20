@@ -2,7 +2,7 @@
 class_name Dot2DSampler
 extends Node
 
-## Turns devices into a [Dot2DCommand]. The only place dot-2d reads input.
+## Turns devices into a [Dot2DCommand]. The only place GameSpice 2D reads input.
 ##
 ## [b]Sampling is separate from simulating on purpose.[/b] The motor never reads a
 ## device, so a bot, a demo playback and a replayed network command all drive the same

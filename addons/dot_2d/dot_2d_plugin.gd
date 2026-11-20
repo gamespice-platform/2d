@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-## Editor entry point for dot-2d. Registers inspector types only.
+## Editor entry point for GameSpice 2D. Registers inspector types only.
 ##
 ## No autoload, for the family's reason: a process may run a server and a client at
 ## once, and a singleton arena makes that impossible. [Dot2DArena] registers itself in

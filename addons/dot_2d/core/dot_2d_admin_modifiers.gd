@@ -17,7 +17,7 @@ extends RefCounted
 ## rubber-banding, the one symptom an admin tool must not have. [member Dot2DState.admin] is
 ## copied by a rewind, compared by [method Dot2DState.matches] and replicated by
 ## [Dot2DNetSync] as `net_admin`, so the client's replay reads the same bits the server's
-## simulation did and the two cannot disagree about them. dot-player-controller reached the
+## simulation did and the two cannot disagree about them. GameSpice Player Controller reached the
 ## same answer through its replicated modifier set; this motor has no modifier set, and one
 ## small bitfield is the whole of what the three abilities need.
 ##
@@ -25,7 +25,7 @@ extends RefCounted
 ## that shipped first already uses eight — and reserving some for this addon would be a
 ## collision waiting for the game that uses sixteen.
 ##
-## [b]The speed is a ladder, not a dial,[/b] for dot-player-controller's reason: only an
+## [b]The speed is a ladder, not a dial,[/b] for GameSpice Player Controller's reason: only an
 ## index travels, so a multiplier the server made up at runtime is one the client could not
 ## reproduce exactly. [method set_speed] picks the nearest step and says which.
 ##
@@ -35,7 +35,7 @@ extends RefCounted
 ## Outside the rectangle there is nothing to see, nothing a game renders, and past
 ## [constant Dot2DNetSync.WORLD_EXTENT] a position wraps to the other side of the world.
 ##
-## There is no gravity step: nothing in dot-2d has gravity.
+## There is no gravity step: nothing in GameSpice 2D has gravity.
 
 # No log channel: static helpers over a value, which return DotResult and let the caller
 # decide what to say.

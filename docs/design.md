@@ -1,6 +1,6 @@
 # Design
 
-Why dot-2d is shaped the way it is, and why the obvious alternative is wrong in each case.
+Why GameSpice 2D is shaped the way it is, and why the obvious alternative is wrong in each case.
 
 ## The motor is a pure function
 
@@ -74,7 +74,7 @@ Two thousand pellets and forty players is 80,000 pair tests a tick done naively.
 - **The speed is a ladder** (`SPEED_STEPS`, the first-person one), because only an index travels. It scales acceleration with the top speed, so 2x is not a slide.
 - **Freeze runs after the mass.** Decay is the round's rule, not movement, so a frozen blob still shrinks; it does not move, turn or spend boost. Freeze wins over noclip.
 - **Noclip keeps the arena rectangle.** `Dot2DBody.move_through` passes every obstacle and `Dot2DBodyFlat` still clamps to `bounds`: outside it nothing is drawn, and past `WORLD_EXTENT` a position wraps. A game that resolves its own geometry after the motor skips that step when `is_noclipped`, **inside the function its client replays**, or the replay collides where the server did not.
-- **No gravity step**, because nothing in dot-2d has gravity.
+- **No gravity step**, because nothing in GameSpice 2D has gravity.
 - **The state helpers work on the integer too** (`noclip_bits`, `speed_bits`, `adopt`), because a player who is several states at once (a monster made of pieces) is one value per player written into each piece.
 
 ## `Dot2DConfig` is an offer, not a requirement
@@ -83,17 +83,17 @@ The nodes carry their own exports and work without it. `Dot2DConfig` is the laye
 
 ## Coupling: nothing is imported
 
-dot-2d names no class outside dot-core.
+GameSpice 2D names no class outside GameSpice Core.
 
-- `Dot2DCommand.write` / `read` and every codec in `Dot2DNetSync` take `Variant`, so this project parses without dot-net installed.
+- `Dot2DCommand.write` / `read` and every codec in `Dot2DNetSync` take `Variant`, so this project parses without GameSpice Net installed.
 - `Dot2DNetSync` describes what to replicate as data: property names and *type names as strings*.
 - `Dot2DCameraRig` duck-types its target's radius, so it can follow anything and simply not zoom.
 
 ## Deliberately not here
 
-- **Splitting and merging.** `Dot2DMassRules` holds the numbers (`max_pieces`, `min_split_mass`, `split_impulse`, `merge_delay_sec`) and nothing in dot-2d reads them. Split pieces are *several entities owned by one player*, which needs an ownership model, a merge rule and a camera that frames a set rather than a point. That is a game's design; game-hungario has its own.
+- **Splitting and merging.** `Dot2DMassRules` holds the numbers (`max_pieces`, `min_split_mass`, `split_impulse`, `merge_delay_sec`) and nothing in GameSpice 2D reads them. Split pieces are *several entities owned by one player*, which needs an ownership model, a merge rule and a camera that frames a set rather than a point. That is a game's design; game-hungario has its own.
 - **Ejecting mass, viruses, teams.** Same reasoning. The primitives are here.
 - **Rotation for anything but facing.** `Dot2DState.facing` is a single angle. A game with independent body and turret rotation carries the second itself.
 - **Tile maps and navigation.** `Dot2DBodyFlat` takes circles and a rectangle. A game with real level geometry uses `Dot2DBodyPhysics` and gives up prediction, or subclasses `Dot2DBody` against its own representation, which is the seam.
-- **Interpolation on the client.** dot-net already owns snapshot interpolation, and a second one here would fight it.
-- **Sprites, animation, particles.** dot-2d ships no art and draws nothing.
+- **Interpolation on the client.** GameSpice Net already owns snapshot interpolation, and a second one here would fight it.
+- **Sprites, animation, particles.** GameSpice 2D ships no art and draws nothing.

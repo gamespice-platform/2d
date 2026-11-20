@@ -1,6 +1,6 @@
 [![2D - GameSpice addon](docs/banner.png)](https://moddingcommunity.com/a/28-gs-2d)
 
-Deterministic 2D movement and world code for Godot 4, for games seen from above. It is the 2D counterpart of [dot-player-controller](https://github.com/gamespice-platform/player-controller) and part of the [dot-*](https://github.com/gamespice-platform) family. It needs [dot-core](https://github.com/gamespice-platform/core) and nothing else.
+Deterministic 2D movement and world code for Godot 4, for games seen from above. It is the 2D counterpart of [GameSpice Player Controller](https://github.com/gamespice-platform/player-controller) and part of the [GameSpice](https://github.com/gamespice-platform) family. It needs [GameSpice Core](https://github.com/gamespice-platform/core) and nothing else.
 
 It gives you three movement feels (top-down, thrust, and mass-based blob), a spatial hash for fast neighbour queries, seeded pellet fields, and `Vector2` replication specs. [game-hungario](https://github.com/zees-games/game-hungario) is built on it.
 
@@ -53,7 +53,7 @@ The sampler turns the pointer into a direction and a world-space distance before
 | `Dot2DController` | Drives one entity, local, commanded or remote. |
 | `Dot2DSampler` | Turns devices into commands. The only place input is read. |
 | `Dot2DCameraRig` | Follows the entity, zooms with size and stays inside the world. |
-| `Dot2DNetSync` | What to replicate, without naming a dot-net type. |
+| `Dot2DNetSync` | What to replicate, without naming a GameSpice Net type. |
 
 ## Mass rules
 

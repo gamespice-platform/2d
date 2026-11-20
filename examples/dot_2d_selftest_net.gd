@@ -24,7 +24,7 @@ class OlderBehaviour extends Object:
 	var net_flags: int = 0
 
 
-## A stand-in for DotNetWriter/DotNetReader, quantising the same way dot-net does.
+## A stand-in for DotNetWriter/DotNetReader, quantising the same way GameSpice Net does.
 class FakeWire extends RefCounted:
 	var values: Array = []
 	var index: int = 0

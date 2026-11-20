@@ -1,4 +1,4 @@
-# dot-2d
+# GameSpice 2D
 
 2D movement and world for a predicted, server-authoritative game: a pure motor, sanitised commands, an analytic arena body, a spatial grid for eating and interest, a deterministic pellet scatter, 2D replication descriptors and an administrator's noclip, freeze and speed.
 
@@ -43,6 +43,6 @@ The family's two steps ([family CLAUDE.md](../../CLAUDE.md#validating-anything))
 - Interest scales with radius, not mass. [design](docs/design.md#interest-scales-with-size)
 - Radius is derived on receipt, never replicated; `WORLD_EXTENT` must cover the arena on both peers. [design](docs/design.md#replication-is-2d-deliberately)
 - Admin state lives in `Dot2DState.admin`, never `flags` (the game's); a game's behaviour declares `var net_admin: int`, and skips its own geometry when `is_noclipped` inside the replayed function. [design](docs/design.md#an-administrators-noclip-freeze-and-speed-are-in-the-state)
-- Name no class outside dot-core: dot-net is reached through `Variant` and type names as strings. [design](docs/design.md#coupling-nothing-is-imported)
+- Name no class outside GameSpice Core: GameSpice Net is reached through `Variant` and type names as strings. [design](docs/design.md#coupling-nothing-is-imported)
 
 Deliberately not here: splitting and merging (`Dot2DMassRules` holds numbers nothing here reads), ejecting mass, teams, turret rotation, tile maps and navigation, client interpolation, art. [design](docs/design.md#deliberately-not-here)

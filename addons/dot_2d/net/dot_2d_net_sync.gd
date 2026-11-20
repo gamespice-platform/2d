@@ -4,7 +4,7 @@ extends RefCounted
 ## What a networked 2D entity replicates, and how to move it in and out of a
 ## [Dot2DState].
 ##
-## [b]dot-net is not a dependency and is not imported here.[/b] Only dot-core is a hard
+## [b]GameSpice Net is not a dependency and is not imported here.[/b] Only GameSpice Core is a hard
 ## dependency in this family, and a script that [i]mentions[/i] a [code]class_name[/code]
 ## the project does not have fails to parse. Types are named as strings and a bridge
 ## resolves them with [code]DotNetVar.Type[spec.type][/code].
@@ -56,7 +56,7 @@ const ADMIN_BITS := 8
 
 ## Position and velocity are `CUSTOM`, not a built-in type.
 ##
-## dot-net's quantised vector types are three-component; a 2D game paying for a Z it
+## GameSpice Net's quantised vector types are three-component; a 2D game paying for a Z it
 ## never uses is a third of its position bandwidth wasted, and on a world with two
 ## thousand entities that is the difference between fitting in a packet and not. The
 ## codecs below are what a bridge passes to `replicate_custom`.
@@ -185,7 +185,7 @@ static func push(
 ## The number that decides whether a crowded world fits. At 112 bits an entity, the
 ## hundred entities a client can see at once are about 1.4 kB a snapshot — which is
 ## why [member Dot2DConfig.max_interest_entities] exists, and why the position codec
-## is 2D rather than dot-net's three-component one: paying for a Z that is always zero
+## is 2D rather than GameSpice Net's three-component one: paying for a Z that is always zero
 ## would add another 40%.
 static func estimated_bits() -> int:
 	return POSITION_BITS * 2 + VELOCITY_BITS * 2 + MASS_BITS + FLAG_BITS + ADMIN_BITS
