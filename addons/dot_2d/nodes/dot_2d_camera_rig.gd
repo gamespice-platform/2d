@@ -57,6 +57,8 @@ const CHANNEL := "dot2d.camera"
 var _target: Node2D = null
 var _arena: Dot2DArena = null
 var _zoom_target: float = 1.0
+## Carries the zoom exports into GameSpice Camera's [DotCameraZoom2D], which owns the zoom and clamp arithmetic.
+var _cfg := DotCameraConfig.new()
 
 
 func _ready() -> void:
@@ -120,11 +122,11 @@ func _zoom(delta: float) -> void:
 	var radius := _target_radius()
 
 	if radius > 0.0:
-		_zoom_target = clampf(
-			base_zoom * pow(reference_radius / maxf(0.001, radius), zoom_exponent),
-			min_zoom,
-			max_zoom
-		)
+		_cfg.zoom_2d_reference = reference_radius
+		_cfg.zoom_2d_exponent = zoom_exponent
+		_cfg.zoom_2d_min = min_zoom
+		_cfg.zoom_2d_max = max_zoom
+		_zoom_target = DotCameraZoom2D.zoom_for(_cfg, radius, base_zoom)
 
 	var current := zoom.x
 	var next := (
@@ -162,11 +164,7 @@ func _target_radius() -> float:
 ## past it. Found by rendering a frame of a level and looking at it; no check in this addon
 ## or in any game using it could see it.
 func _half_extent() -> Vector2:
-	# A zoom of zero is not reachable through the exported range and is reachable by
-	# assignment, and the failure mode of the division is an infinite rectangle.
-	return get_viewport_rect().size * 0.5 / Vector2(
-		maxf(absf(zoom.x), 0.001), maxf(absf(zoom.y), 0.001)
-	)
+	return DotCameraZoom2D.half_extent(get_viewport_rect().size, zoom.x)
 
 
 ## Keeps the visible rectangle inside the arena.
@@ -183,21 +181,9 @@ func _clamp() -> void:
 	if bounds.size == Vector2.ZERO:
 		return
 
-	var half := _half_extent()
-
-	# A view wider than the world is centred rather than clamped to a negative range,
-	# which is the normal case for a small arena or a very zoomed-out blob.
-	var min_x := bounds.position.x + half.x
-	var max_x := bounds.end.x - half.x
-	var min_y := bounds.position.y + half.y
-	var max_y := bounds.end.y - half.y
-
-	global_position = Vector2(
-		(bounds.position.x + bounds.end.x) * 0.5 if min_x > max_x
-			else clampf(global_position.x, min_x, max_x),
-		(bounds.position.y + bounds.end.y) * 0.5 if min_y > max_y
-			else clampf(global_position.y, min_y, max_y),
-	)
+	# A view wider than the world is centred rather than clamped to a negative range, which is
+	# the normal case for a small arena or a very zoomed-out blob.
+	global_position = DotCameraZoom2D.clamp_centre(global_position, _half_extent(), bounds)
 
 
 ## The world rectangle currently visible. What interest management can be checked

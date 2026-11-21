@@ -435,3 +435,42 @@ func _controller_ticks(controller: Dot2DController, arena: Dot2DArena) -> void:
 		controller.current_speed_limit() < light,
 		"a heavier entity has a lower speed limit"
 	)
+
+
+# --- Camera ----------------------------------------------------------------
+
+func _test_camera_rig() -> void:
+	_section("camera rig")
+
+	var arena := _make_arena()
+	var controller := Dot2DController.new()
+	controller.state.radius = 128.0
+	add_child(controller)
+	controller.global_position = Vector2(5000.0, 0.0)
+
+	var rig := Dot2DCameraRig.new()
+	rig.follow_sec = 0.0
+	rig.zoom_sec = 0.0
+	rig.clamp_to_arena = true
+	add_child(rig)
+	rig.bind_arena(arena)
+	rig.follow(controller)
+	rig._process(0.016)
+
+	# 32 / 128 to the power 0.5, through DotCameraZoom2D.
+	_check(is_equal_approx(rig.zoom.x, 0.5), "zoom falls with the target's radius")
+	var half: Vector2 = rig.get_viewport_rect().size * 0.5 / 0.5
+	_check(is_equal_approx(rig.global_position.x, 1000.0 - half.x), "a target past the wall leaves the camera at the wall, not the void", str(rig.global_position))
+	_check(rig.visible_rect().size.is_equal_approx(half * 2.0), "the visible rectangle is the viewport divided by the zoom")
+
+	controller.state.radius = 1.0e6
+	rig._process(0.016)
+	_check(is_equal_approx(rig.zoom.x, rig.min_zoom), "a huge target stops at the minimum zoom")
+
+	remove_child(rig)
+	rig.free()
+	remove_child(controller)
+	controller.free()
+	remove_child(arena)
+	arena.free()
+	_done()

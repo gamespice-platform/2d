@@ -4,7 +4,7 @@
 
 Read the family [CLAUDE.md](../../CLAUDE.md) first; this file is only what is specific to the 2D layer. Classes are `Dot2D*`, because `class_name` is global.
 
-**The distributable is `addons/dot_2d/`.** It requires dot-core (symlinked, `.gitignore`) and names no class outside it. game-hungario is the one game on it.
+**The distributable is `addons/dot_2d/`.** It requires dot-core and dot-camera (both symlinked, `.gitignore`; `addons/dot_camera`) and names no class outside them: `Dot2DCameraRig` takes its zoom and clamp arithmetic from `DotCameraZoom2D`. game-hungario is the one game on it.
 
 ## Read before
 

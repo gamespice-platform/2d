@@ -6,7 +6,7 @@ It gives you three movement feels (top-down, thrust, and mass-based blob), a spa
 
 ## Install
 
-1. Copy `addons/dot_2d/` and `addons/dot_core/` into your project.
+1. Copy `addons/dot_2d/`, `addons/dot_core/` and `addons/dot_camera/` into your project.
 2. Enable both in *Project > Project Settings > Plugins*.
 
 ## Use
