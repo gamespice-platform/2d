@@ -6,23 +6,23 @@ extends "res://examples/dot_2d_selftest_base.gd"
 func _test_command() -> void:
 	_section("command")
 
-	var command := Dot2DCommand.new()
-	command.set_button(Dot2DCommand.BUTTON_SPLIT, true)
-	_check(command.is_pressed(Dot2DCommand.BUTTON_SPLIT), "a button sets")
+	var command := GS2DCommand.new()
+	command.set_button(GS2DCommand.BUTTON_SPLIT, true)
+	_check(command.is_pressed(GS2DCommand.BUTTON_SPLIT), "a button sets")
 
-	var previous := Dot2DCommand.new()
+	var previous := GS2DCommand.new()
 	_check(
-		command.just_pressed(Dot2DCommand.BUTTON_SPLIT, previous),
+		command.just_pressed(GS2DCommand.BUTTON_SPLIT, previous),
 		"and reads as an edge against a command that did not have it"
 	)
 	_check(
-		not command.just_pressed(Dot2DCommand.BUTTON_SPLIT, command),
+		not command.just_pressed(GS2DCommand.BUTTON_SPLIT, command),
 		"and not against one that did"
 	)
 
 	# The single most common cheat in a client-driven game: a move vector longer than
 	# one, which is a player who simply moves faster than everyone else.
-	var cheat := Dot2DCommand.new()
+	var cheat := GS2DCommand.new()
 	cheat.move = Vector2(40.0, 40.0)
 	cheat.aim = Vector2(0.0, 900.0)
 	cheat.reach = 999999.0
@@ -33,11 +33,11 @@ func _test_command() -> void:
 	_close(cheat.aim.length(), 1.0, "and the aim is normalised")
 	_close(cheat.reach, 1000.0, "and the reach is capped")
 	_check(
-		cheat.buttons < (1 << Dot2DCommand.BUTTON_BITS),
+		cheat.buttons < (1 << GS2DCommand.BUTTON_BITS),
 		"and unknown buttons are masked off"
 	)
 
-	var nan_command := Dot2DCommand.new()
+	var nan_command := GS2DCommand.new()
 	nan_command.move = Vector2(NAN, NAN)
 	nan_command.aim = Vector2(NAN, 1.0)
 	nan_command.reach = NAN
@@ -47,7 +47,7 @@ func _test_command() -> void:
 	_close(nan_command.reach, 0.0, "and a NaN reach")
 
 	# A zero aim must stay zero rather than becoming an arbitrary direction.
-	var still := Dot2DCommand.new()
+	var still := GS2DCommand.new()
 	still.aim = Vector2.ZERO
 	still.sanitise()
 	_check(still.aim == Vector2.ZERO, "a zero aim is left as zero, not normalised")
@@ -60,7 +60,7 @@ func _test_command() -> void:
 func _test_state() -> void:
 	_section("state")
 
-	var state := Dot2DState.at(Vector2(10.0, 20.0), 5.0)
+	var state := GS2DState.at(Vector2(10.0, 20.0), 5.0)
 	_check(state.position == Vector2(10.0, 20.0), "a state holds a position")
 
 	state.set_flag(4, true)
@@ -88,7 +88,7 @@ func _test_state() -> void:
 func _test_mass_rules() -> void:
 	_section("mass rules")
 
-	var rules := Dot2DMassRules.cell_eating()
+	var rules := GS2DMassRules.cell_eating()
 	_check(rules.validate().ok, "the default rules validate")
 
 	# The relationship the whole genre balances on: twice the mass is √2 the width, so
@@ -145,14 +145,14 @@ func _test_mass_rules() -> void:
 		"but never below the floor"
 	)
 
-	var equal := Dot2DMassRules.new()
+	var equal := GS2DMassRules.new()
 	equal.eat_ratio = 1.0
 	_check(
 		not equal.validate().ok,
 		"an eat ratio of 1 is refused, because two equal blobs would each eat the other"
 	)
 
-	var stuck := Dot2DMassRules.new()
+	var stuck := GS2DMassRules.new()
 	stuck.min_speed_scale = 0.0
 	_check(
 		not stuck.validate().ok,
@@ -164,21 +164,21 @@ func _test_mass_rules() -> void:
 func _test_tunables() -> void:
 	_section("tunables")
 
-	_check(Dot2DTunables.topdown().validate().ok, "the top-down preset validates")
-	_check(Dot2DTunables.blob().validate().ok, "the blob preset validates")
-	_check(Dot2DTunables.thrust().validate().ok, "the thrust preset validates")
+	_check(GS2DTunables.topdown().validate().ok, "the top-down preset validates")
+	_check(GS2DTunables.blob().validate().ok, "the blob preset validates")
+	_check(GS2DTunables.thrust().validate().ok, "the thrust preset validates")
 
-	_check(Dot2DTunables.blob().uses_aim(), "blob mode follows the pointer")
-	_check(not Dot2DTunables.topdown().uses_aim(), "and top-down does not by default")
+	_check(GS2DTunables.blob().uses_aim(), "blob mode follows the pointer")
+	_check(not GS2DTunables.topdown().uses_aim(), "and top-down does not by default")
 
-	var no_rules := Dot2DTunables.new()
-	no_rules.mode = Dot2DTunables.Mode.BLOB
+	var no_rules := GS2DTunables.new()
+	no_rules.mode = GS2DTunables.Mode.BLOB
 	_check(
 		not no_rules.validate().ok,
 		"blob mode without mass rules is refused"
 	)
 
-	var degenerate := Dot2DTunables.new()
+	var degenerate := GS2DTunables.new()
 	degenerate.dead_reach = 200.0
 	degenerate.full_speed_reach = 100.0
 	_check(
@@ -193,7 +193,7 @@ func _test_tunables() -> void:
 func _test_body_bounds() -> void:
 	_section("body: bounds")
 
-	var body := Dot2DBodyFlat.centred(Vector2(1000.0, 1000.0))
+	var body := GS2DBodyFlat.centred(Vector2(1000.0, 1000.0))
 
 	var clear := body.move(Vector2.ZERO, Vector2(100.0, 0.0), 10.0)
 	_check(not clear.blocked, "an unobstructed move is not blocked")
@@ -219,7 +219,7 @@ func _test_body_bounds() -> void:
 	_close(huge.position.x, 0.0, "an entity wider than the world is centred, not ejected")
 
 	# Sliding, so the edges are not traps.
-	var sliding := Dot2DBodyFlat.centred(Vector2(1000.0, 1000.0))
+	var sliding := GS2DBodyFlat.centred(Vector2(1000.0, 1000.0))
 	var into_wall := sliding.move(Vector2(495.0, 0.0), Vector2(50.0, 50.0), 5.0)
 	var slid := sliding.reflect(Vector2(50.0, 50.0), into_wall)
 	_check(
@@ -238,7 +238,7 @@ func _test_body_bounds() -> void:
 func _test_body_obstacles() -> void:
 	_section("body: obstacles")
 
-	var body := Dot2DBodyFlat.centred(Vector2(2000.0, 2000.0))
+	var body := GS2DBodyFlat.centred(Vector2(2000.0, 2000.0))
 	body.add_obstacle(Vector2(100.0, 0.0), 50.0)
 
 	var into := body.move(Vector2.ZERO, Vector2(120.0, 0.0), 10.0)
@@ -268,13 +268,13 @@ func _test_body_obstacles() -> void:
 func _test_motor_topdown() -> void:
 	_section("motor: top-down")
 
-	var tunables := Dot2DTunables.topdown()
+	var tunables := GS2DTunables.topdown()
 	tunables.max_speed = 300.0
 	tunables.acceleration = 3000.0
 	tunables.friction = 3000.0
 
-	var motor := Dot2DMotor.with_tunables(tunables)
-	var state := Dot2DState.at(Vector2.ZERO)
+	var motor := GS2DMotor.with_tunables(tunables)
+	var state := GS2DState.at(Vector2.ZERO)
 
 	_run_ticks(motor, state, _move_command(Vector2.RIGHT), 60)
 
@@ -282,18 +282,18 @@ func _test_motor_topdown() -> void:
 	_check(state.position.x > 250.0, "and travels", str(state.position.x))
 	_check(absf(state.position.y) < 0.001, "in a straight line")
 
-	_run_ticks(motor, state, Dot2DCommand.new(), 60)
+	_run_ticks(motor, state, GS2DCommand.new(), 60)
 	_close(state.speed(), 0.0, "letting go stops it")
 
 	# Diagonal must not be faster than cardinal. Normalising is what prevents the
 	# oldest bug in 2D movement.
-	var diagonal := Dot2DState.at(Vector2.ZERO)
+	var diagonal := GS2DState.at(Vector2.ZERO)
 	_run_ticks(motor, diagonal, _move_command(Vector2.ONE), 60)
 	_close(diagonal.speed(), 300.0, "diagonal movement is not faster", 0.5)
 
 	# Turn authority.
 	tunables.turn_authority = 0.2
-	var turning := Dot2DState.at(Vector2.ZERO)
+	var turning := GS2DState.at(Vector2.ZERO)
 	turning.velocity = Vector2(300.0, 0.0)
 	_run_ticks(motor, turning, _move_command(Vector2.LEFT), 6)
 	_check(
@@ -305,11 +305,11 @@ func _test_motor_topdown() -> void:
 
 	# Facing follows travel, but not while stopping — or the entity spins as the
 	# velocity crosses zero.
-	var facing := Dot2DState.at(Vector2.ZERO)
+	var facing := GS2DState.at(Vector2.ZERO)
 	_run_ticks(motor, facing, _move_command(Vector2.UP), 30)
 	_close(facing.facing, Vector2.UP.angle(), "facing follows the direction of travel", 0.05)
 	var before := facing.facing
-	_run_ticks(motor, facing, Dot2DCommand.new(), 60)
+	_run_ticks(motor, facing, GS2DCommand.new(), 60)
 	_close(facing.facing, before, "and is left alone once stopped", 0.05)
 	_done()
 
@@ -317,13 +317,13 @@ func _test_motor_topdown() -> void:
 func _test_motor_blob() -> void:
 	_section("motor: blob")
 
-	var tunables := Dot2DTunables.blob()
+	var tunables := GS2DTunables.blob()
 	tunables.max_speed = 400.0
 	tunables.full_speed_reach = 100.0
 	tunables.dead_reach = 5.0
 
-	var motor := Dot2DMotor.with_tunables(tunables)
-	var state := Dot2DState.at(Vector2.ZERO)
+	var motor := GS2DMotor.with_tunables(tunables)
+	var state := GS2DState.at(Vector2.ZERO)
 	state.mass = 10.0
 
 	motor.simulate(state, _aim_command(Vector2.RIGHT, 200.0), STEP, 0)
@@ -331,7 +331,7 @@ func _test_motor_blob() -> void:
 	_check(small_speed > 0.0, "a small blob moves", "%.1f" % small_speed)
 
 	# The trade the whole genre is built on.
-	var heavy := Dot2DState.at(Vector2.ZERO)
+	var heavy := GS2DState.at(Vector2.ZERO)
 	heavy.mass = 5000.0
 	motor.simulate(heavy, _aim_command(Vector2.RIGHT, 200.0), STEP, 0)
 	_check(
@@ -341,7 +341,7 @@ func _test_motor_blob() -> void:
 	)
 
 	# Fine positioning: a cursor close by moves the blob slowly.
-	var near := Dot2DState.at(Vector2.ZERO)
+	var near := GS2DState.at(Vector2.ZERO)
 	near.mass = 10.0
 	motor.simulate(near, _aim_command(Vector2.RIGHT, 50.0), STEP, 0)
 	_check(
@@ -351,16 +351,16 @@ func _test_motor_blob() -> void:
 	)
 
 	# The dead zone, so a cursor resting on the blob does not jitter.
-	var resting := Dot2DState.at(Vector2.ZERO)
+	var resting := GS2DState.at(Vector2.ZERO)
 	resting.mass = 10.0
 	motor.simulate(resting, _aim_command(Vector2.RIGHT, 2.0), STEP, 0)
 	_close(resting.speed(), 0.0, "a pointer inside the dead zone stops it entirely")
 
 	# Radius must track mass every tick. Anything that queries in between — an eat
 	# check, an interest rectangle — uses whichever is current.
-	var growing := Dot2DState.at(Vector2.ZERO)
+	var growing := GS2DState.at(Vector2.ZERO)
 	growing.mass = 100.0
-	motor.simulate(growing, Dot2DCommand.new(), STEP, 0)
+	motor.simulate(growing, GS2DCommand.new(), STEP, 0)
 	_close(
 		growing.radius,
 		tunables.mass_rules.radius_for(growing.mass),
@@ -369,7 +369,7 @@ func _test_motor_blob() -> void:
 	)
 
 	# Blobs do not accelerate: the velocity is set outright.
-	var instant := Dot2DState.at(Vector2.ZERO)
+	var instant := GS2DState.at(Vector2.ZERO)
 	instant.mass = 10.0
 	motor.simulate(instant, _aim_command(Vector2.RIGHT, 200.0), STEP, 0)
 	var first := instant.speed()
@@ -381,20 +381,20 @@ func _test_motor_blob() -> void:
 func _test_motor_thrust() -> void:
 	_section("motor: thrust")
 
-	var tunables := Dot2DTunables.thrust()
+	var tunables := GS2DTunables.thrust()
 	tunables.turn_rate = PI
-	var motor := Dot2DMotor.with_tunables(tunables)
+	var motor := GS2DMotor.with_tunables(tunables)
 
-	var state := Dot2DState.at(Vector2.ZERO)
+	var state := GS2DState.at(Vector2.ZERO)
 	state.facing = 0.0
 
-	var turn := Dot2DCommand.new()
+	var turn := GS2DCommand.new()
 	turn.move = Vector2(1.0, 0.0)
 	_run_ticks(motor, state, turn, 30)
 	_close(state.facing, PI * 0.5, "turning rotates the facing", 0.1)
 
-	var thrust := Dot2DCommand.new()
-	thrust.set_button(Dot2DCommand.BUTTON_ACTION, true)
+	var thrust := GS2DCommand.new()
+	thrust.set_button(GS2DCommand.BUTTON_ACTION, true)
 	state.facing = 0.0
 	state.velocity = Vector2.ZERO
 	_run_ticks(motor, state, thrust, 30)
@@ -406,11 +406,11 @@ func _test_motor_thrust() -> void:
 func _test_determinism() -> void:
 	_section("determinism")
 
-	var tunables := Dot2DTunables.blob()
-	var body := Dot2DBodyFlat.centred(Vector2(2000.0, 2000.0))
+	var tunables := GS2DTunables.blob()
+	var body := GS2DBodyFlat.centred(Vector2(2000.0, 2000.0))
 	body.add_obstacle(Vector2(200.0, 50.0), 60.0)
 
-	var commands: Array[Dot2DCommand] = []
+	var commands: Array[GS2DCommand] = []
 	for index in range(180):
 		var angle := float(index) * 0.11
 		commands.append(_aim_command(Vector2.from_angle(angle), 40.0 + float(index)))
@@ -441,14 +441,14 @@ func _test_determinism() -> void:
 
 
 func _replay(
-	tunables: Dot2DTunables,
-	body: Dot2DBodyFlat,
-	commands: Array[Dot2DCommand]
-) -> Dot2DState:
-	var motor := Dot2DMotor.with_tunables(tunables)
+	tunables: GS2DTunables,
+	body: GS2DBodyFlat,
+	commands: Array[GS2DCommand]
+) -> GS2DState:
+	var motor := GS2DMotor.with_tunables(tunables)
 	motor.body = body
 
-	var state := Dot2DState.at(Vector2(-300.0, -300.0))
+	var state := GS2DState.at(Vector2(-300.0, -300.0))
 	state.mass = 40.0
 
 	for index in range(commands.size()):

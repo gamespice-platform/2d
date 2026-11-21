@@ -5,8 +5,8 @@ extends "res://examples/dot_2d_selftest_world.gd"
 
 # --- Net sync --------------------------------------------------------------
 
-## A stand-in for the DotNetBehaviour a game writes. Plain properties, because that is
-## all [Dot2DNetSync] requires.
+## A stand-in for the GSNetBehaviour a game writes. Plain properties, because that is
+## all [GS2DNetSync] requires.
 class FakeBehaviour extends Object:
 	var net_position: Vector2 = Vector2.ZERO
 	var net_velocity: Vector2 = Vector2.ZERO
@@ -15,7 +15,7 @@ class FakeBehaviour extends Object:
 	var net_admin: int = 0
 
 
-## A behaviour written before `net_admin` existed. [method Dot2DNetSync.push] must still
+## A behaviour written before `net_admin` existed. [method GS2DNetSync.push] must still
 ## move it rather than aborting on the missing property.
 class OlderBehaviour extends Object:
 	var net_position: Vector2 = Vector2.ZERO
@@ -24,7 +24,7 @@ class OlderBehaviour extends Object:
 	var net_flags: int = 0
 
 
-## A stand-in for DotNetWriter/DotNetReader, quantising the same way GameSpice Net does.
+## A stand-in for GSNetWriter/GSNetReader, quantising the same way GameSpice Net does.
 class FakeWire extends RefCounted:
 	var values: Array = []
 	var index: int = 0
@@ -55,7 +55,7 @@ class FakeWire extends RefCounted:
 func _test_net_sync() -> void:
 	_section("net sync")
 
-	var specs := Dot2DNetSync.specs()
+	var specs := GS2DNetSync.specs()
 	_check(specs.size() == 5, "the bridge describes what replicates")
 
 	var custom := 0
@@ -67,13 +67,13 @@ func _test_net_sync() -> void:
 		"position and velocity use a custom codec rather than a 3D vector type"
 	)
 
-	var state := Dot2DState.at(Vector2(123.4, -567.8), 12.0)
+	var state := GS2DState.at(Vector2(123.4, -567.8), 12.0)
 	state.velocity = Vector2(200.0, -100.0)
 	state.mass = 412.0
 	state.flags = 5
 
 	var behaviour := FakeBehaviour.new()
-	Dot2DNetSync.pull(state, behaviour)
+	GS2DNetSync.pull(state, behaviour)
 
 	_check(behaviour.net_position == state.position, "position replicates")
 	_check(behaviour.net_mass == 412, "mass replicates as a whole number")
@@ -82,9 +82,9 @@ func _test_net_sync() -> void:
 	# The received radius is derived, not replicated. Replicating both would let them
 	# disagree by a rounding error and put the eat radius and the drawn radius in
 	# different places.
-	var received := Dot2DState.new()
-	var rules := Dot2DMassRules.cell_eating()
-	Dot2DNetSync.push(behaviour, received, rules)
+	var received := GS2DState.new()
+	var rules := GS2DMassRules.cell_eating()
+	GS2DNetSync.push(behaviour, received, rules)
 
 	_check(received.position == state.position, "and comes back")
 	_close(
@@ -96,8 +96,8 @@ func _test_net_sync() -> void:
 	# The quantisation the wire actually applies. A world extent that does not cover
 	# the arena wraps distant entities to the wrong place.
 	var wire := FakeWire.new()
-	Dot2DNetSync.write_position(wire, Vector2(1234.5, -2345.6))
-	var decoded: Vector2 = Dot2DNetSync.read_position(wire)
+	GS2DNetSync.write_position(wire, Vector2(1234.5, -2345.6))
+	var decoded: Vector2 = GS2DNetSync.read_position(wire)
 	_check(
 		decoded.distance_to(Vector2(1234.5, -2345.6)) < 0.05,
 		"a position survives quantisation to within a fraction of a unit",
@@ -105,11 +105,11 @@ func _test_net_sync() -> void:
 	)
 
 	var edge := FakeWire.new()
-	Dot2DNetSync.write_position(edge, Vector2(Dot2DNetSync.WORLD_EXTENT, 0.0))
-	var edge_back: Vector2 = Dot2DNetSync.read_position(edge)
+	GS2DNetSync.write_position(edge, Vector2(GS2DNetSync.WORLD_EXTENT, 0.0))
+	var edge_back: Vector2 = GS2DNetSync.read_position(edge)
 	_close(
 		edge_back.x,
-		Dot2DNetSync.WORLD_EXTENT,
+		GS2DNetSync.WORLD_EXTENT,
 		"and the far edge of the world survives it too",
 		0.05
 	)
@@ -117,9 +117,9 @@ func _test_net_sync() -> void:
 	# Sixteen bytes an entity is the number the interest cap is sized against: a
 	# hundred entities in view is about 1.3 kB a snapshot.
 	_check(
-		Dot2DNetSync.estimated_bits() <= 128,
+		GS2DNetSync.estimated_bits() <= 128,
 		"one entity's full state fits in sixteen bytes",
-		"%d bits" % Dot2DNetSync.estimated_bits()
+		"%d bits" % GS2DNetSync.estimated_bits()
 	)
 
 	behaviour.free()
@@ -136,11 +136,11 @@ func _test_net_sync() -> void:
 
 func _test_command_neutralise() -> void:
 	_section("command neutralise")
-	var command := Dot2DCommand.new()
+	var command := GS2DCommand.new()
 	command.move = Vector2(1.0, 0.0)
 	command.aim = Vector2(0.0, 1.0)
 	command.reach = 300.0
-	command.set_button(Dot2DCommand.BUTTON_SPLIT, true)
+	command.set_button(GS2DCommand.BUTTON_SPLIT, true)
 	command.neutralise()
 	_check(command.move == Vector2.ZERO and command.reach == 0.0 and command.buttons == 0,
 		"neutralise stops the move, the reach and the buttons")

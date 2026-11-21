@@ -1,5 +1,5 @@
 @tool
-class_name Dot2DMassRules
+class_name GS2DMassRules
 extends Resource
 
 ## How mass becomes size, speed and the right to eat somebody.
@@ -83,13 +83,13 @@ extends Resource
 
 
 ## The cell-eating genre's relationships: the defaults, by name.
-static func cell_eating() -> Dot2DMassRules:
-	return Dot2DMassRules.new()
+static func cell_eating() -> GS2DMassRules:
+	return GS2DMassRules.new()
 
 
 ## Deprecated: the old name for [method cell_eating], which named a commercial game. Kept
 ## because game packs built against an older client shell call it; remove once none do.
-static func agar() -> Dot2DMassRules:
+static func agar() -> GS2DMassRules:
 	return cell_eating()
 
 
@@ -153,35 +153,35 @@ func can_split(mass: float, pieces: int) -> bool:
 	return (max_pieces == 0 or pieces < max_pieces) and mass >= min_split_mass
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if max_pieces < 0:
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"max_pieces is %d; use 0 for unlimited, not a negative number." % max_pieces
 		)
 
 	if eat_ratio <= 1.0:
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"An eat ratio of %.2f lets equal blobs eat each other, which makes the "
 				% eat_ratio
 			+ "outcome of a collision depend on which one is resolved first."
 		)
 
 	if min_speed_scale <= 0.0:
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"A speed floor of zero means the biggest blob eventually cannot move."
 		)
 
 	if radius_exponent >= 1.0:
-		DotLog.warn(
+		GSLog.warn(
 			"dot2d.mass",
 			"a radius exponent at or above 1 makes mass grow slower than width, "
 			+ "so two small blobs are worth more area than one big one"
 		)
 
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 func describe() -> Dictionary:

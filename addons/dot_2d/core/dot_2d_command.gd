@@ -1,12 +1,12 @@
-class_name Dot2DCommand
+class_name GS2DCommand
 extends RefCounted
 
 ## What a 2D player asked for on one tick.
 ##
-## The 2D counterpart of GameSpice Player Controller's [code]DotFpsCommand[/code], and separate
+## The 2D counterpart of GameSpice Player Controller's [code]GSFpsCommand[/code], and separate
 ## from input sampling for the same reason: the simulation must be a pure function of
 ## these, so a client predicting a move and a server re-running it reach the same
-## answer. Nothing in [Dot2DMotor] reads a device, a clock or a node.
+## answer. Nothing in [GS2DMotor] reads a device, a clock or a node.
 ##
 ## [b][member aim] is a direction, not a screen position.[/b] A mouse position is
 ## meaningless on the server — it depends on a window size and a camera zoom the server
@@ -28,7 +28,7 @@ const BUTTON_BITS := 8
 ## Movement intent, at most unit length. What a stick or WASD produces.
 ##
 ## In a point-and-move game — a cell-eater, a twin-stick — this is unused and [member aim]
-## drives movement instead; see [member Dot2DTunables.follow_aim].
+## drives movement instead; see [member GS2DTunables.follow_aim].
 var move: Vector2 = Vector2.ZERO
 
 ## Where the player is pointing, unit length. Zero means "nowhere in particular".
@@ -59,18 +59,18 @@ func set_button(button: int, pressed: bool) -> void:
 ##
 ## Splitting and ejecting are edge-triggered. Reading the level instead is a blob that
 ## splits sixty times a second for as long as the key is held.
-func pressed_since(previous: Dot2DCommand) -> int:
+func pressed_since(previous: GS2DCommand) -> int:
 	if previous == null:
 		return buttons
 	return buttons & ~previous.buttons
 
 
-func just_pressed(button: int, previous: Dot2DCommand) -> bool:
+func just_pressed(button: int, previous: GS2DCommand) -> bool:
 	return (pressed_since(previous) & button) != 0
 
 
 ## Clears what this command would make happen, keeps where it points: given to a silent or
-## blacked-out player ([code]DotNetInput._neutralise[/code] calls this on its members).
+## blacked-out player ([code]GSNetInput._neutralise[/code] calls this on its members).
 ## Move, reach (the speed in pointer mode) and every button go; [member aim] stays.
 func neutralise() -> void:
 	move = Vector2.ZERO
@@ -78,8 +78,8 @@ func neutralise() -> void:
 	buttons = 0
 
 
-func duplicate_command() -> Dot2DCommand:
-	var copy := Dot2DCommand.new()
+func duplicate_command() -> GS2DCommand:
+	var copy := GS2DCommand.new()
 	copy.move = move
 	copy.aim = aim
 	copy.reach = reach
@@ -87,7 +87,7 @@ func duplicate_command() -> Dot2DCommand:
 	return copy
 
 
-func equals(other: Dot2DCommand) -> bool:
+func equals(other: GS2DCommand) -> bool:
 	if other == null:
 		return false
 	return (
@@ -121,7 +121,7 @@ func sanitise(max_reach: float = 1000.0) -> void:
 	buttons &= (1 << BUTTON_BITS) - 1
 
 
-## Writes to a [code]DotNetWriter[/code].
+## Writes to a [code]GSNetWriter[/code].
 ##
 ## [param writer] is [Variant] so this file never mentions a GameSpice Net class name — a
 ## script that does fails to parse in a project without GameSpice Net installed.
@@ -172,6 +172,6 @@ func describe() -> Dictionary:
 
 
 func _to_string() -> String:
-	return "Dot2DCommand(%s, %s)" % [
+	return "GS2DCommand(%s, %s)" % [
 		move, "+".join(button_names(buttons)) if buttons != 0 else "-"
 	]

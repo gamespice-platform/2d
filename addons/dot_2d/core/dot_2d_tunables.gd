@@ -1,5 +1,5 @@
 @tool
-class_name Dot2DTunables
+class_name GS2DTunables
 extends Resource
 
 ## How a 2D entity moves. Everything a designer touches, in one resource.
@@ -41,7 +41,7 @@ enum Mode {
 
 @export_group("Pointer")
 
-## Move toward [member Dot2DCommand.aim] rather than [member Dot2DCommand.move].
+## Move toward [member GS2DCommand.aim] rather than [member GS2DCommand.move].
 ##
 ## What a cell-eating game and a twin-stick with mouse aim want. Forced on in
 ## [constant Mode.BLOB], because a blob game with WASD is a different game.
@@ -67,7 +67,7 @@ enum Mode {
 
 @export_group("Boost")
 
-## Multiplies speed while [constant Dot2DCommand.BUTTON_BOOST] is held.
+## Multiplies speed while [constant GS2DCommand.BUTTON_BOOST] is held.
 @export_range(1.0, 6.0, 0.05) var boost_multiplier: float = 1.6
 
 ## Mass per second boosting costs. Zero is free.
@@ -77,7 +77,7 @@ enum Mode {
 
 ## How radius, speed and eating are derived from mass. Required in
 ## [constant Mode.BLOB]; ignored otherwise.
-@export var mass_rules: Dot2DMassRules = null
+@export var mass_rules: GS2DMassRules = null
 
 @export_group("Bounds")
 
@@ -88,12 +88,12 @@ enum Mode {
 @export_range(0.0, 1.0, 0.05) var restitution: float = 0.5
 
 
-static func topdown() -> Dot2DTunables:
-	return Dot2DTunables.new()
+static func topdown() -> GS2DTunables:
+	return GS2DTunables.new()
 
 
-static func blob() -> Dot2DTunables:
-	var tunables := Dot2DTunables.new()
+static func blob() -> GS2DTunables:
+	var tunables := GS2DTunables.new()
 	tunables.mode = Mode.BLOB
 	tunables.follow_aim = true
 	tunables.max_speed = 420.0
@@ -103,12 +103,12 @@ static func blob() -> Dot2DTunables:
 	tunables.acceleration = 100000.0
 	tunables.friction = 100000.0
 	tunables.face_velocity = false
-	tunables.mass_rules = Dot2DMassRules.cell_eating()
+	tunables.mass_rules = GS2DMassRules.cell_eating()
 	return tunables
 
 
-static func thrust() -> Dot2DTunables:
-	var tunables := Dot2DTunables.new()
+static func thrust() -> GS2DTunables:
+	var tunables := GS2DTunables.new()
 	tunables.mode = Mode.THRUST
 	tunables.max_speed = 400.0
 	tunables.acceleration = 500.0
@@ -121,17 +121,17 @@ func uses_aim() -> bool:
 	return follow_aim or mode == Mode.BLOB
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if mode == Mode.BLOB and mass_rules == null:
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"Blob mode needs mass rules; without them every blob is the same size "
 			+ "and the same speed, which is not a game."
 		)
 
 	if dead_reach >= full_speed_reach:
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"dead_reach of %.1f is at or beyond full_speed_reach of %.1f, so the "
 				% [dead_reach, full_speed_reach]
 			+ "entity can only ever be stopped or at full speed."
@@ -140,7 +140,7 @@ func validate() -> DotResult:
 	if mass_rules != null:
 		return mass_rules.validate()
 
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 func describe() -> Dictionary:

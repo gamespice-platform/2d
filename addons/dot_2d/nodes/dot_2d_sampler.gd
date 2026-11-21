@@ -1,13 +1,13 @@
 @tool
-class_name Dot2DSampler
+class_name GS2DSampler
 extends Node
 
-## Turns devices into a [Dot2DCommand]. The only place GameSpice 2D reads input.
+## Turns devices into a [GS2DCommand]. The only place GameSpice 2D reads input.
 ##
 ## [b]Sampling is separate from simulating on purpose.[/b] The motor never reads a
 ## device, so a bot, a demo playback and a replayed network command all drive the same
 ## code as a player. Subclass this — or ignore it entirely and build a
-## [Dot2DCommand] yourself — and everything downstream is unchanged.
+## [GS2DCommand] yourself — and everything downstream is unchanged.
 ##
 ## The pointer is resolved to a **direction and a distance in world units** here rather
 ## than being sent as a screen position, because a screen position is meaningless on a
@@ -34,7 +34,7 @@ const CHANNEL := "dot2d.input"
 @export var use_pointer: bool = true
 
 ## What the pointer distance is measured from. Usually the entity being controlled.
-@export var origin_ref: DotNodeRef = null
+@export var origin_ref: GSNodeRef = null
 
 ## Largest pointer distance reported, in world units. Also the wire's range.
 @export_range(1.0, 5000.0, 1.0) var max_reach: float = 1000.0
@@ -74,7 +74,7 @@ func _ready() -> void:
 	if _origin == null:
 		_origin = get_parent() as Node2D
 	if _origin == null and use_pointer:
-		DotLog.debug(CHANNEL, "no Node2D origin; aim falls back to the movement direction")
+		GSLog.debug(CHANNEL, "no Node2D origin; aim falls back to the movement direction")
 
 
 func _register_defaults() -> void:
@@ -112,11 +112,11 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Produces the command for this tick.
 ##
-## Called by [Dot2DController] in [constant Dot2DController.Drive.LOCAL]. Safe to call
+## Called by [GS2DController] in [constant GS2DController.Drive.LOCAL]. Safe to call
 ## outside the tree — it returns an empty command rather than failing, which is what a
 ## headless test wants.
-func sample(_delta: float = 0.0) -> Dot2DCommand:
-	var command := Dot2DCommand.new()
+func sample(_delta: float = 0.0) -> GS2DCommand:
+	var command := GS2DCommand.new()
 
 	if suspended or not is_inside_tree():
 		return command
@@ -126,12 +126,12 @@ func sample(_delta: float = 0.0) -> Dot2DCommand:
 	)
 
 	command.set_button(
-		Dot2DCommand.BUTTON_ACTION, _pressed(action_button)
+		GS2DCommand.BUTTON_ACTION, _pressed(action_button)
 	)
-	command.set_button(Dot2DCommand.BUTTON_ALT, _pressed(alt_button))
-	command.set_button(Dot2DCommand.BUTTON_BOOST, _pressed(boost_button))
-	command.set_button(Dot2DCommand.BUTTON_SPLIT, _pressed(split_button))
-	command.set_button(Dot2DCommand.BUTTON_EJECT, _pressed(eject_button))
+	command.set_button(GS2DCommand.BUTTON_ALT, _pressed(alt_button))
+	command.set_button(GS2DCommand.BUTTON_BOOST, _pressed(boost_button))
+	command.set_button(GS2DCommand.BUTTON_SPLIT, _pressed(split_button))
+	command.set_button(GS2DCommand.BUTTON_EJECT, _pressed(eject_button))
 
 	_apply_pointer(command)
 	command.sanitise(max_reach)
@@ -142,7 +142,7 @@ func _pressed(action: StringName) -> bool:
 	return action != &"" and InputMap.has_action(action) and Input.is_action_pressed(action)
 
 
-func _apply_pointer(command: Dot2DCommand) -> void:
+func _apply_pointer(command: GS2DCommand) -> void:
 	if not use_pointer or _origin == null or not _origin.is_inside_tree():
 		# Without a pointer the aim is the movement direction, so a game that switches
 		# between the two does not have to special-case which one is live.

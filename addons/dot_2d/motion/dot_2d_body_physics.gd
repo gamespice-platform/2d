@@ -1,5 +1,5 @@
-class_name Dot2DBodyPhysics
-extends Dot2DBody
+class_name GS2DBodyPhysics
+extends GS2DBody
 
 ## Moves against Godot's 2D physics space.
 ##
@@ -10,7 +10,7 @@ extends Dot2DBody
 ##
 ## Use it for an unpredicted entity — a server-authoritative NPC, a projectile nobody
 ## predicts — or for a single-player game where none of that applies. A bounded arena
-## should use [Dot2DBodyFlat], which is both faster and exact.
+## should use [GS2DBodyFlat], which is both faster and exact.
 
 const CHANNEL := "dot2d.body"
 
@@ -23,7 +23,7 @@ var _query := PhysicsShapeQueryParameters2D.new()
 var _shape := CircleShape2D.new()
 
 
-static func for_world(world: World2D) -> Dot2DBodyPhysics:
+static func for_world(world: World2D) -> GS2DBodyPhysics:
 	# Not this class's own name. A script that names itself in an expression, loaded after
 	# its base, cuts Godot 4.7.2's exit teardown short and leaks every script loaded before
 	# it. See docs/gdscript-hazards.md, "A script that names itself".
@@ -39,14 +39,14 @@ static func for_world(world: World2D) -> Dot2DBodyPhysics:
 ## property read.
 func bind(world: World2D) -> void:
 	if world == null:
-		DotLog.warn(CHANNEL, "bound to a null world; nothing will collide")
+		GSLog.warn(CHANNEL, "bound to a null world; nothing will collide")
 		return
 	_world = world
 
 
 func bind_from_node(node: Node2D) -> void:
 	if node == null or not node.is_inside_tree():
-		DotLog.warn(CHANNEL, "bind_from_node() on a node outside the tree")
+		GSLog.warn(CHANNEL, "bind_from_node() on a node outside the tree")
 		return
 	bind(node.get_world_2d())
 
@@ -65,7 +65,7 @@ func move(from: Vector2, motion: Vector2, radius: float) -> Hit:
 	var space := _world.direct_space_state
 
 	if space == null:
-		DotLog.warn(CHANNEL, "no space state; the move ran outside a physics step")
+		GSLog.warn(CHANNEL, "no space state; the move ran outside a physics step")
 		return hit
 
 	_shape.radius = radius

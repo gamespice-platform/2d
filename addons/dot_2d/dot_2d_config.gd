@@ -1,8 +1,8 @@
 @tool
-class_name Dot2DConfig
-extends DotConfig
+class_name GS2DConfig
+extends GSConfig
 
-## Everything configurable about the 2D layer. Layered like every [DotConfig]:
+## Everything configurable about the 2D layer. Layered like every [GSConfig]:
 ## exported defaults, then a JSON file, then [code]DOT_2D_*[/code] environment
 ## variables, then [code]--2d-*[/code] arguments.
 
@@ -55,18 +55,18 @@ func cli_prefix() -> String:
 	return "--2d-"
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if world_size.x <= 0.0 or world_size.y <= 0.0:
-		return DotResult.fail(DotError.CODE_INVALID, "A world with no size.")
+		return GSResult.fail(GSError.CODE_INVALID, "A world with no size.")
 
 	if cell_size > minf(world_size.x, world_size.y):
-		DotLog.warn(
+		GSLog.warn(
 			"dot2d.config",
 			"the grid cell is larger than the world, so every entity is in one cell "
 			+ "and the spatial hash does nothing"
 		)
 
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 ## The arena rectangle, centred on the origin.
@@ -80,11 +80,11 @@ func describe_summary() -> String:
 	]
 
 
-## Puts the simulation fields on a controller. A [Dot2DConfig] is a document; the
+## Puts the simulation fields on a controller. A [GS2DConfig] is a document; the
 ## nodes read their own exports, and this is how the two meet. Until it existed
 ## nothing read this config at all — every field was documented and applied by
 ## nothing, which is the family's recurring bug and, here, a whole resource of it.
-func apply_to_controller(controller: Dot2DController) -> void:
+func apply_to_controller(controller: GS2DController) -> void:
 	if controller == null:
 		return
 	controller.tick_rate = tick_rate
@@ -92,7 +92,7 @@ func apply_to_controller(controller: Dot2DController) -> void:
 
 
 ## Puts the world fields on a scatter field.
-func apply_to_scatter(scatter: Dot2DScatter) -> void:
+func apply_to_scatter(scatter: GS2DScatter) -> void:
 	if scatter == null:
 		return
 	scatter.target_count = scatter_count

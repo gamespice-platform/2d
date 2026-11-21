@@ -6,7 +6,7 @@ extends "res://examples/dot_2d_selftest_mid.gd"
 func _test_grid() -> void:
 	_section("grid")
 
-	var grid := Dot2DGrid.new(100.0)
+	var grid := GS2DGrid.new(100.0)
 
 	grid.place(1, Vector2(10.0, 10.0), 5.0)
 	grid.place(2, Vector2(20.0, 20.0), 5.0)
@@ -46,7 +46,7 @@ func _test_grid() -> void:
 
 	# Cells that empty must be dropped, or a world an entity has crossed once holds a
 	# cell for every square it has ever been in.
-	var walker := Dot2DGrid.new(50.0)
+	var walker := GS2DGrid.new(50.0)
 	for step in range(200):
 		walker.place(1, Vector2(float(step) * 60.0, 0.0), 1.0)
 	_check(
@@ -56,7 +56,7 @@ func _test_grid() -> void:
 	)
 
 	# Scale. This is the whole point of the class.
-	var big := Dot2DGrid.new(128.0)
+	var big := GS2DGrid.new(128.0)
 	for index in range(2000):
 		big.place(index, Vector2(float(index % 50) * 80.0, float(index / 50) * 80.0), 4.0)
 	var sample := big.query_circle(Vector2(400.0, 400.0), 150.0)
@@ -72,7 +72,7 @@ func _test_grid() -> void:
 func _test_grid_overlap() -> void:
 	_section("grid: overlap")
 
-	var grid := Dot2DGrid.new(100.0)
+	var grid := GS2DGrid.new(100.0)
 
 	grid.place(1, Vector2.ZERO, 10.0)
 	# Centre 300 away, radius 300: its edge is at the query and its centre is far
@@ -107,7 +107,7 @@ func _test_grid_overlap() -> void:
 func _test_scatter() -> void:
 	_section("scatter")
 
-	var scatter := Dot2DScatter.over(
+	var scatter := GS2DScatter.over(
 		Rect2(Vector2(-500.0, -500.0), Vector2(1000.0, 1000.0)), 100, 12345
 	)
 
@@ -117,7 +117,7 @@ func _test_scatter() -> void:
 
 	# Determinism: a client can lay out the whole field from a seed rather than
 	# receiving two thousand positions.
-	var mirror := Dot2DScatter.over(
+	var mirror := GS2DScatter.over(
 		Rect2(Vector2(-500.0, -500.0), Vector2(1000.0, 1000.0)), 100, 12345
 	)
 	_check(
@@ -125,7 +125,7 @@ func _test_scatter() -> void:
 		"the same seed lays out the same field"
 	)
 
-	var other := Dot2DScatter.over(
+	var other := GS2DScatter.over(
 		Rect2(Vector2(-500.0, -500.0), Vector2(1000.0, 1000.0)), 100, 999
 	)
 	_check(
@@ -162,7 +162,7 @@ func _test_scatter() -> void:
 	_done()
 
 
-func _scatter_taking(scatter: Dot2DScatter) -> void:
+func _scatter_taking(scatter: GS2DScatter) -> void:
 	# Taking, and the duplicate claim two clients both make at any latency.
 	_check(scatter.take(3), "a slot is taken")
 	_check(not scatter.take(3), "and cannot be taken twice")
@@ -189,7 +189,7 @@ func _scatter_taking(scatter: Dot2DScatter) -> void:
 		"a refilled slot is somewhere new"
 	)
 
-	var into_grid := Dot2DGrid.new(100.0)
+	var into_grid := GS2DGrid.new(100.0)
 	scatter.populate(into_grid, 100000, 4.0)
 	_check(
 		into_grid.size() == scatter.alive_count(),
@@ -199,8 +199,8 @@ func _scatter_taking(scatter: Dot2DScatter) -> void:
 
 # --- Arena -----------------------------------------------------------------
 
-func _make_arena() -> Dot2DArena:
-	var arena := Dot2DArena.new()
+func _make_arena() -> GS2DArena:
+	var arena := GS2DArena.new()
 	arena.register_service = false
 	arena.bounds = Rect2(Vector2(-1000.0, -1000.0), Vector2(2000.0, 2000.0))
 	arena.cell_size = 200.0
@@ -213,8 +213,8 @@ func _test_arena() -> void:
 
 	var arena := _make_arena()
 
-	var a := Dot2DState.at(Vector2(0.0, 0.0), 10.0)
-	var b := Dot2DState.at(Vector2(50.0, 0.0), 10.0)
+	var a := GS2DState.at(Vector2(0.0, 0.0), 10.0)
+	var b := GS2DState.at(Vector2(50.0, 0.0), 10.0)
 
 	arena.register(1, a)
 	arena.register(2, b)
@@ -276,13 +276,13 @@ func _test_interest() -> void:
 	arena.interest_extent = Vector2(200.0, 200.0)
 	arena.interest_scales_with_size = false
 
-	var watcher := Dot2DState.at(Vector2.ZERO, 10.0)
+	var watcher := GS2DState.at(Vector2.ZERO, 10.0)
 	arena.register(1, watcher)
 
 	for index in range(20):
 		arena.register(
 			100 + index,
-			Dot2DState.at(Vector2(float(index) * 60.0, 0.0), 4.0)
+			GS2DState.at(Vector2(float(index) * 60.0, 0.0), 4.0)
 		)
 
 	arena.sync_grid()
@@ -320,10 +320,10 @@ func _test_controller() -> void:
 
 	var arena := _make_arena()
 
-	var controller := Dot2DController.new()
-	controller.drive = Dot2DController.Drive.COMMANDED
+	var controller := GS2DController.new()
+	controller.drive = GS2DController.Drive.COMMANDED
 	controller.tick_rate = TICK_RATE
-	controller.tunables = Dot2DTunables.blob()
+	controller.tunables = GS2DTunables.blob()
 	controller.entity_id = 7
 	add_child(controller)
 	controller.attach(arena, 7)
@@ -335,10 +335,10 @@ func _test_controller() -> void:
 
 	# A backlog is capped at max_catchup_ticks and the rest dropped: a frame that
 	# simulated a second of movement is a player teleporting.
-	var catching := Dot2DController.new()
-	catching.drive = Dot2DController.Drive.LOCAL
+	var catching := GS2DController.new()
+	catching.drive = GS2DController.Drive.LOCAL
 	catching.tick_rate = TICK_RATE
-	catching.tunables = Dot2DTunables.blob()
+	catching.tunables = GS2DTunables.blob()
 	catching.entity_id = 8
 	add_child(catching)
 	catching.attach(arena, 8)
@@ -349,12 +349,12 @@ func _test_controller() -> void:
 	catching._physics_process(0.0)
 	_check(catching._tick - ticks_before == 3, "a backlog is capped at max_catchup_ticks", str(catching._tick - ticks_before))
 	_check(catching._accumulator == 0.0, "and the rest is dropped rather than replayed later")
-	var doc := Dot2DConfig.new()
+	var doc := GS2DConfig.new()
 	doc.tick_rate = 30
 	doc.max_catchup_ticks = 5
 	doc.apply_to_controller(catching)
-	_check(catching.tick_rate == 30 and catching.max_catchup_ticks == 5, "Dot2DConfig reaches the controller")
-	var field := Dot2DScatter.new()
+	_check(catching.tick_rate == 30 and catching.max_catchup_ticks == 5, "GS2DConfig reaches the controller")
+	var field := GS2DScatter.new()
 	doc.scatter_count = 123
 	doc.scatter_refill_per_tick = 4
 	doc.apply_to_scatter(field)
@@ -375,10 +375,10 @@ func _test_controller() -> void:
 	_done()
 
 
-func _controller_ticks(controller: Dot2DController, arena: Dot2DArena) -> void:
+func _controller_ticks(controller: GS2DController, arena: GS2DArena) -> void:
 	var moves: Array[int] = []
 	controller.simulated.connect(
-		func(_t: int, _s: Dot2DState) -> void: moves.append(1)
+		func(_t: int, _s: GS2DState) -> void: moves.append(1)
 	)
 
 	controller.apply_command(_aim_command(Vector2.RIGHT, 500.0))
@@ -415,8 +415,8 @@ func _controller_ticks(controller: Dot2DController, arena: Dot2DArena) -> void:
 	)
 
 	# A remote controller is never simulated.
-	controller.drive = Dot2DController.Drive.REMOTE
-	var remote_state := Dot2DState.at(Vector2(123.0, 456.0), 8.0)
+	controller.drive = GS2DController.Drive.REMOTE
+	var remote_state := GS2DState.at(Vector2(123.0, 456.0), 8.0)
 	controller.apply_state(remote_state)
 	_check(
 		controller.state.position == Vector2(123.0, 456.0),
@@ -427,7 +427,7 @@ func _controller_ticks(controller: Dot2DController, arena: Dot2DArena) -> void:
 	_check(moves.size() == count, "and does not simulate")
 
 	# Speed limits fall with mass, which is what a HUD shows.
-	controller.drive = Dot2DController.Drive.COMMANDED
+	controller.drive = GS2DController.Drive.COMMANDED
 	controller.set_mass(10.0)
 	var light := controller.current_speed_limit()
 	controller.set_mass(5000.0)
@@ -443,12 +443,12 @@ func _test_camera_rig() -> void:
 	_section("camera rig")
 
 	var arena := _make_arena()
-	var controller := Dot2DController.new()
+	var controller := GS2DController.new()
 	controller.state.radius = 128.0
 	add_child(controller)
 	controller.global_position = Vector2(5000.0, 0.0)
 
-	var rig := Dot2DCameraRig.new()
+	var rig := GS2DCameraRig.new()
 	rig.follow_sec = 0.0
 	rig.zoom_sec = 0.0
 	rig.clamp_to_arena = true
@@ -457,7 +457,7 @@ func _test_camera_rig() -> void:
 	rig.follow(controller)
 	rig._process(0.016)
 
-	# 32 / 128 to the power 0.5, through DotCameraZoom2D.
+	# 32 / 128 to the power 0.5, through GSCameraZoom2D.
 	_check(is_equal_approx(rig.zoom.x, 0.5), "zoom falls with the target's radius")
 	var half: Vector2 = rig.get_viewport_rect().size * 0.5 / 0.5
 	_check(is_equal_approx(rig.global_position.x, 1000.0 - half.x), "a target past the wall leaves the camera at the wall, not the void", str(rig.global_position))

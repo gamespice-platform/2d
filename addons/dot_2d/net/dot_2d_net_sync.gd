@@ -1,18 +1,18 @@
-class_name Dot2DNetSync
+class_name GS2DNetSync
 extends RefCounted
 
 ## What a networked 2D entity replicates, and how to move it in and out of a
-## [Dot2DState].
+## [GS2DState].
 ##
 ## [b]GameSpice Net is not a dependency and is not imported here.[/b] Only GameSpice Core is a hard
 ## dependency in this family, and a script that [i]mentions[/i] a [code]class_name[/code]
 ## the project does not have fails to parse. Types are named as strings and a bridge
-## resolves them with [code]DotNetVar.Type[spec.type][/code].
+## resolves them with [code]GSNetVar.Type[spec.type][/code].
 ##
 ## [codeblock]
-## class_name BlobNet extends DotNetBehaviour
+## class_name BlobNet extends GSNetBehaviour
 ##
-## @export var controller: Dot2DController
+## @export var controller: GS2DController
 ##
 ## var net_position: Vector2
 ## var net_velocity: Vector2
@@ -21,8 +21,8 @@ extends RefCounted
 ## var net_admin: int
 ##
 ## func _register_net_vars() -> void:
-##     for spec in Dot2DNetSync.specs():
-##         var declaration := replicate(spec.property, DotNetVar.Type[spec.type])
+##     for spec in GS2DNetSync.specs():
+##         var declaration := replicate(spec.property, GSNetVar.Type[spec.type])
 ##         if spec.bits > 0:
 ##             declaration.bits(spec.bits)
 ##         if spec.interpolated:
@@ -30,10 +30,10 @@ extends RefCounted
 ##
 ## func _net_simulate(tick: int, delta: float) -> void:
 ##     controller.simulate_tick(tick, delta)
-##     Dot2DNetSync.pull(controller.state, self)
+##     GS2DNetSync.pull(controller.state, self)
 ##
 ## func _net_state_applied(_tick: int) -> void:
-##     Dot2DNetSync.push(self, controller.state)
+##     GS2DNetSync.push(self, controller.state)
 ## [/codeblock]
 
 ## World extent the position is quantised against, in each direction from the origin.
@@ -49,7 +49,7 @@ const MASS_BITS := 20
 const MASS_MAX := 1000000.0
 const FLAG_BITS := 16
 
-## [member Dot2DState.admin]. Five bits are used (see [Dot2DAdminModifiers]); eight leaves
+## [member GS2DState.admin]. Five bits are used (see [GS2DAdminModifiers]); eight leaves
 ## room for a step or two without a wire change.
 const ADMIN_BITS := 8
 
@@ -137,7 +137,7 @@ static func read_velocity(reader: Variant) -> Variant:
 ## Mass is quantised to a whole number. A blob's mass is displayed as an integer, it
 ## compares exactly, and a reconciling client is not corrected every tick because the
 ## server's 412.0001 differs from its own 412.0.
-static func pull(state: Dot2DState, target: Object) -> void:
+static func pull(state: GS2DState, target: Object) -> void:
 	if state == null or target == null:
 		return
 
@@ -158,8 +158,8 @@ static func pull(state: Dot2DState, target: Object) -> void:
 ## radius in different places.
 static func push(
 	source: Object,
-	state: Dot2DState,
-	rules: Dot2DMassRules = null
+	state: GS2DState,
+	rules: GS2DMassRules = null
 ) -> void:
 	if source == null or state == null:
 		return
@@ -174,7 +174,7 @@ static func push(
 	var admin: Variant = source.get(&"net_admin")
 
 	if admin != null:
-		state.admin = int(admin) & Dot2DAdminModifiers.ALL
+		state.admin = int(admin) & GS2DAdminModifiers.ALL
 
 	if rules != null:
 		state.radius = rules.radius_for(state.mass)
@@ -184,7 +184,7 @@ static func push(
 ##
 ## The number that decides whether a crowded world fits. At 112 bits an entity, the
 ## hundred entities a client can see at once are about 1.4 kB a snapshot — which is
-## why [member Dot2DConfig.max_interest_entities] exists, and why the position codec
+## why [member GS2DConfig.max_interest_entities] exists, and why the position codec
 ## is 2D rather than GameSpice Net's three-component one: paying for a Z that is always zero
 ## would add another 40%.
 static func estimated_bits() -> int:

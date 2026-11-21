@@ -1,10 +1,10 @@
 @tool
-class_name Dot2DController
+class_name GS2DController
 extends Node2D
 
 ## Drives one 2D entity: samples, simulates, publishes.
 ##
-## The 2D counterpart of [code]DotFpsController[/code], and structured the same way.
+## The 2D counterpart of [code]GSFpsController[/code], and structured the same way.
 ## [b]The node follows the state, not the other way round.[/b] The simulation owns
 ## [member state] and the transform is written from it after each tick — a controller
 ## that read its position back out of the node would be reading a value the renderer
@@ -14,7 +14,7 @@ const CHANNEL := "dot2d"
 const SERVICE := &"dot_2d_controller"
 
 ## A tick was simulated. The place to read the new state.
-signal simulated(tick: int, state: Dot2DState)
+signal simulated(tick: int, state: GS2DState)
 
 ## The entity hit something solid.
 signal collided(normal: Vector2)
@@ -41,7 +41,7 @@ enum Drive {
 
 ## Most ticks one frame may simulate to catch up. A frame that simulated an
 ## unbounded backlog is a second of movement in one frame, which reads as a
-## player teleporting. [member Dot2DConfig.max_catchup_ticks] lands here.
+## player teleporting. [member GS2DConfig.max_catchup_ticks] lands here.
 @export_range(1, 60, 1) var max_catchup_ticks: int = 8
 
 @export var register_service: bool = false
@@ -50,15 +50,15 @@ enum Drive {
 
 @export_group("Configuration")
 
-@export var tunables: Dot2DTunables = null
+@export var tunables: GS2DTunables = null
 
 @export_group("Wiring")
 
 ## The arena this belongs to. Registers itself with it when resolved.
-@export var arena_ref: DotNodeRef = null
+@export var arena_ref: GSNodeRef = null
 
 ## Where input comes from, in [constant Drive.LOCAL]. Optional.
-@export var sampler_ref: DotNodeRef = null
+@export var sampler_ref: GSNodeRef = null
 
 @export_group("Identity")
 
@@ -66,18 +66,18 @@ enum Drive {
 @export var entity_id: int = 0
 
 ## The simulation state. The authoritative one.
-var state: Dot2DState = Dot2DState.new()
+var state: GS2DState = GS2DState.new()
 
-var motor: Dot2DMotor = null
+var motor: GS2DMotor = null
 
-var arena: Dot2DArena = null
+var arena: GS2DArena = null
 
 var sampler: Node = null
 
 ## The command being simulated. Set by the sampler, or handed in.
-var current_command: Dot2DCommand = null
+var current_command: GS2DCommand = null
 
-var _last_command: Dot2DCommand = null
+var _last_command: GS2DCommand = null
 var _accumulator: float = 0.0
 var _tick: int = 0
 var _started: bool = false
@@ -92,7 +92,7 @@ func _ready() -> void:
 	var res := setup()
 
 	if not res.ok:
-		DotLog.result(CHANNEL, "controller setup", res)
+		GSLog.result(CHANNEL, "controller setup", res)
 
 
 func _exit_tree() -> void:
@@ -100,23 +100,23 @@ func _exit_tree() -> void:
 		arena.forget(entity_id)
 
 	if _registered_name != &"":
-		DotRegistry.unregister_instance(_registered_name, self)
+		GSRegistry.unregister_instance(_registered_name, self)
 		_registered_name = &""
 
 
-func setup() -> DotResult:
+func setup() -> GSResult:
 	if tunables == null:
-		tunables = Dot2DTunables.topdown()
+		tunables = GS2DTunables.topdown()
 
 	var valid := tunables.validate()
 
 	if not valid.ok:
 		return valid
 
-	motor = Dot2DMotor.with_tunables(tunables)
+	motor = GS2DMotor.with_tunables(tunables)
 
 	if arena_ref != null:
-		arena = arena_ref.resolve_or_null(self, CHANNEL) as Dot2DArena
+		arena = arena_ref.resolve_or_null(self, CHANNEL) as GS2DArena
 
 	if arena != null:
 		motor.body = arena.body
@@ -135,19 +135,19 @@ func setup() -> DotResult:
 
 	if register_service:
 		_registered_name = (
-			DotRegistry.scoped_name(SERVICE, service_scope)
+			GSRegistry.scoped_name(SERVICE, service_scope)
 			if service_scope != &""
 			else SERVICE
 		)
-		DotRegistry.register(_registered_name, self)
+		GSRegistry.register(_registered_name, self)
 
 	_started = true
 	_publish()
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 ## Attaches to an arena after construction. For an entity spawned at runtime.
-func attach(p_arena: Dot2DArena, id: int) -> void:
+func attach(p_arena: GS2DArena, id: int) -> void:
 	if arena != null and is_instance_valid(arena) and entity_id != 0:
 		arena.forget(entity_id)
 
@@ -211,7 +211,7 @@ func simulate_tick(tick: int, delta: float) -> void:
 		# should read as "still holding the key", which is what actually happened, not
 		# as "let go" — and a blob that stops every time a packet is late is unplayable
 		# at any latency.
-		command = _last_command if _last_command != null else Dot2DCommand.new()
+		command = _last_command if _last_command != null else GS2DCommand.new()
 
 	var before_mass := state.mass
 	var before_position := state.position
@@ -242,12 +242,12 @@ func simulate_tick(tick: int, delta: float) -> void:
 
 
 ## Hands in a command for the next tick. What a server does with a received input.
-func apply_command(command: Dot2DCommand) -> void:
+func apply_command(command: GS2DCommand) -> void:
 	current_command = command
 
 
 ## Overwrites the state from the network. What a remote entity does.
-func apply_state(remote: Dot2DState) -> void:
+func apply_state(remote: GS2DState) -> void:
 	state.copy_from(remote)
 	_publish()
 
@@ -305,7 +305,7 @@ func _publish() -> void:
 	global_position = state.position
 
 	if tunables != null and not tunables.face_velocity and tunables.mode \
-		!= Dot2DTunables.Mode.THRUST:
+		!= GS2DTunables.Mode.THRUST:
 		return
 
 	rotation = state.facing
@@ -323,10 +323,10 @@ func current_speed_limit() -> float:
 
 	# Frozen is zero, not the step: a HUD that shows a frozen player their usual top speed
 	# is telling them the controls are broken.
-	if Dot2DAdminModifiers.is_frozen(state):
+	if GS2DAdminModifiers.is_frozen(state):
 		return 0.0
 
-	return limit * Dot2DAdminModifiers.speed_of(state)
+	return limit * GS2DAdminModifiers.speed_of(state)
 
 
 func describe() -> Dictionary:
@@ -346,5 +346,5 @@ func describe_lines() -> PackedStringArray:
 		"position %.1f, %.1f" % [state.position.x, state.position.y],
 		"speed    %.1f of %.1f" % [state.speed(), current_speed_limit()],
 		"mass     %.1f  radius %.1f" % [state.mass, state.radius],
-		"admin    %s" % (", ".join(Dot2DAdminModifiers.words(state.admin)) if state.admin != 0 else "-"),
+		"admin    %s" % (", ".join(GS2DAdminModifiers.words(state.admin)) if state.admin != 0 else "-"),
 	])

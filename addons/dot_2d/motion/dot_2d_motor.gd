@@ -1,7 +1,7 @@
-class_name Dot2DMotor
+class_name GS2DMotor
 extends RefCounted
 
-## Turns a [Dot2DCommand] into a change in a [Dot2DState]. The simulation itself.
+## Turns a [GS2DCommand] into a change in a [GS2DState]. The simulation itself.
 ##
 ## [b]A pure function of its arguments.[/b] No device, no clock, no node, no
 ## randomness. Called with the same state, command and delta it produces the same
@@ -15,14 +15,14 @@ extends RefCounted
 # No log channel: a pure function of state, command and delta, run every tick on every
 # peer. It has nothing to fail against, and a line from it would be a line per tick.
 
-var tunables: Dot2DTunables = null
+var tunables: GS2DTunables = null
 
 ## What the entity collides against. Null means nothing does.
-var body: Dot2DBody = null
+var body: GS2DBody = null
 
 
-static func with_tunables(p_tunables: Dot2DTunables) -> Dot2DMotor:
-	var motor := Dot2DMotor.new()
+static func with_tunables(p_tunables: GS2DTunables) -> GS2DMotor:
+	var motor := GS2DMotor.new()
 	motor.tunables = p_tunables
 	return motor
 
@@ -32,8 +32,8 @@ static func with_tunables(p_tunables: Dot2DTunables) -> Dot2DMotor:
 ## [param delta] is the fixed simulation step, not a frame time. A variable step makes
 ## the result depend on the frame rate, which two machines do not share.
 func simulate(
-	state: Dot2DState,
-	command: Dot2DCommand,
+	state: GS2DState,
+	command: GS2DCommand,
 	delta: float,
 	tick: int = 0
 ) -> void:
@@ -41,7 +41,7 @@ func simulate(
 		return
 
 	if command == null:
-		command = Dot2DCommand.new()
+		command = GS2DCommand.new()
 
 	state.tick = tick
 
@@ -49,16 +49,16 @@ func simulate(
 
 	# An administrator's freeze: no move, no turn, no boost spent. After the mass, because
 	# decay is the round's rule rather than movement and a frozen blob still shrinks.
-	# The state carries it (see Dot2DAdminModifiers), so a predicting client stops on the
+	# The state carries it (see GS2DAdminModifiers), so a predicting client stops on the
 	# same tick the server did rather than walking on until a snapshot drags it back.
-	if Dot2DAdminModifiers.bits_frozen(state.admin):
+	if GS2DAdminModifiers.bits_frozen(state.admin):
 		state.velocity = Vector2.ZERO
 		return
 
 	match tunables.mode:
-		Dot2DTunables.Mode.THRUST:
+		GS2DTunables.Mode.THRUST:
 			_simulate_thrust(state, command, delta)
-		Dot2DTunables.Mode.BLOB:
+		GS2DTunables.Mode.BLOB:
 			_simulate_blob(state, command, delta)
 		_:
 			_simulate_topdown(state, command, delta)
@@ -73,7 +73,7 @@ func simulate(
 ## last tick's speed and then changed mass is a tick where the two disagree by exactly
 ## one frame — which is invisible until a client and a server disagree about which side
 ## of an eat threshold a blob was on.
-func _apply_mass(state: Dot2DState, delta: float) -> void:
+func _apply_mass(state: GS2DState, delta: float) -> void:
 	var rules := tunables.mass_rules
 
 	if rules == null:
@@ -83,23 +83,23 @@ func _apply_mass(state: Dot2DState, delta: float) -> void:
 	state.radius = rules.radius_for(state.mass)
 
 
-func _speed_limit(state: Dot2DState, command: Dot2DCommand) -> float:
+func _speed_limit(state: GS2DState, command: GS2DCommand) -> float:
 	var limit := tunables.max_speed
 
 	if tunables.mass_rules != null:
 		limit *= tunables.mass_rules.speed_scale(state.mass)
 
-	if command.is_pressed(Dot2DCommand.BUTTON_BOOST):
+	if command.is_pressed(GS2DCommand.BUTTON_BOOST):
 		limit *= tunables.boost_multiplier
 
-	return limit * Dot2DAdminModifiers.bits_speed(state.admin)
+	return limit * GS2DAdminModifiers.bits_speed(state.admin)
 
 
 ## The direction the player wants to go, and how hard, from 0 to 1.
 ##
 ## In pointer mode the magnitude comes from how far the cursor is, which is what makes
 ## fine positioning possible; in stick mode it is the stick's own magnitude.
-func wish_vector(command: Dot2DCommand) -> Vector2:
+func wish_vector(command: GS2DCommand) -> Vector2:
 	if not tunables.uses_aim():
 		return command.move.limit_length(1.0)
 
@@ -120,8 +120,8 @@ func wish_vector(command: Dot2DCommand) -> Vector2:
 
 
 func _simulate_topdown(
-	state: Dot2DState,
-	command: Dot2DCommand,
+	state: GS2DState,
+	command: GS2DCommand,
 	delta: float
 ) -> void:
 	var wish := wish_vector(command)
@@ -139,7 +139,7 @@ func _simulate_topdown(
 	# An admin's speed step scales the acceleration with the top speed, so a player on 2x
 	# reaches the new top speed in the same time they reached the old one; scaling only the
 	# top speed makes a fast player feel like one who is sliding.
-	var rate := tunables.acceleration * Dot2DAdminModifiers.bits_speed(state.admin)
+	var rate := tunables.acceleration * GS2DAdminModifiers.bits_speed(state.admin)
 
 	if tunables.turn_authority < 1.0 and state.velocity.length_squared() > 0.001:
 		var alignment := state.velocity.normalized().dot(wish.normalized())
@@ -156,8 +156,8 @@ func _simulate_topdown(
 
 
 func _simulate_thrust(
-	state: Dot2DState,
-	command: Dot2DCommand,
+	state: GS2DState,
+	command: GS2DCommand,
 	delta: float
 ) -> void:
 	# Turning is separate from thrusting, which is the whole feel of the mode.
@@ -173,12 +173,12 @@ func _simulate_thrust(
 
 	var throttle := maxf(0.0, command.move.y)
 
-	if command.is_pressed(Dot2DCommand.BUTTON_ACTION):
+	if command.is_pressed(GS2DCommand.BUTTON_ACTION):
 		throttle = 1.0
 
 	if throttle > 0.0:
 		state.velocity += Vector2.from_angle(state.facing) \
-			* tunables.acceleration * Dot2DAdminModifiers.bits_speed(state.admin) \
+			* tunables.acceleration * GS2DAdminModifiers.bits_speed(state.admin) \
 			* throttle * delta
 	else:
 		_apply_friction(state, delta)
@@ -192,8 +192,8 @@ func _simulate_thrust(
 ## toward that makes a small cell feel sluggish in exactly the situation it is supposed
 ## to be nimble, and it makes a split feel like a slide.
 func _simulate_blob(
-	state: Dot2DState,
-	command: Dot2DCommand,
+	state: GS2DState,
+	command: GS2DCommand,
 	delta: float
 ) -> void:
 	var wish := wish_vector(command)
@@ -206,7 +206,7 @@ func _simulate_blob(
 	state.velocity = wish * limit
 
 	if (
-		command.is_pressed(Dot2DCommand.BUTTON_BOOST)
+		command.is_pressed(GS2DCommand.BUTTON_BOOST)
 		and tunables.boost_mass_cost > 0.0
 		and tunables.mass_rules != null
 	):
@@ -214,7 +214,7 @@ func _simulate_blob(
 		state.radius = tunables.mass_rules.radius_for(state.mass)
 
 
-func _apply_friction(state: Dot2DState, delta: float) -> void:
+func _apply_friction(state: GS2DState, delta: float) -> void:
 	var speed := state.velocity.length()
 
 	if speed <= 0.0001:
@@ -229,7 +229,7 @@ func _apply_friction(state: Dot2DState, delta: float) -> void:
 		state.velocity = state.velocity * ((speed - drop) / speed)
 
 
-func _integrate(state: Dot2DState, delta: float) -> void:
+func _integrate(state: GS2DState, delta: float) -> void:
 	var motion := state.velocity * delta
 
 	if motion == Vector2.ZERO:
@@ -240,8 +240,8 @@ func _integrate(state: Dot2DState, delta: float) -> void:
 		return
 
 	# An administrator's noclip: through everything solid, but not out of the world. See
-	# Dot2DAdminModifiers for why the bounds stay.
-	if Dot2DAdminModifiers.bits_noclip(state.admin):
+	# GS2DAdminModifiers for why the bounds stay.
+	if GS2DAdminModifiers.bits_noclip(state.admin):
 		state.position = body.move_through(state.position, motion, state.radius)
 		return
 
@@ -251,8 +251,8 @@ func _integrate(state: Dot2DState, delta: float) -> void:
 	if not hit.blocked:
 		return
 
-	if body is Dot2DBodyFlat:
-		var flat := body as Dot2DBodyFlat
+	if body is GS2DBodyFlat:
+		var flat := body as GS2DBodyFlat
 		flat.bounce = tunables.bounce_off_walls
 		flat.restitution = tunables.restitution
 		state.velocity = flat.reflect(state.velocity, hit)
@@ -265,11 +265,11 @@ func _integrate(state: Dot2DState, delta: float) -> void:
 
 
 func _apply_facing(
-	state: Dot2DState,
-	command: Dot2DCommand,
+	state: GS2DState,
+	command: GS2DCommand,
 	_delta: float
 ) -> void:
-	if tunables.mode == Dot2DTunables.Mode.THRUST:
+	if tunables.mode == GS2DTunables.Mode.THRUST:
 		return
 
 	if tunables.uses_aim() and command.aim != Vector2.ZERO:
@@ -289,7 +289,7 @@ func _apply_facing(
 ##
 ## Deterministic, and takes no time: called on the same tick with the same arguments on
 ## two machines it produces the same velocity.
-func impulse(state: Dot2DState, direction: Vector2, strength: float) -> void:
+func impulse(state: GS2DState, direction: Vector2, strength: float) -> void:
 	if state == null or direction == Vector2.ZERO:
 		return
 

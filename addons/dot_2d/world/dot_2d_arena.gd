@@ -1,19 +1,19 @@
 @tool
-class_name Dot2DArena
+class_name GS2DArena
 extends Node2D
 
 ## The bounded world: where things are, what is near what, and who can see whom.
 ##
-## Holds the [Dot2DGrid] every query goes through and the [Dot2DBodyFlat] every entity
+## Holds the [GS2DGrid] every query goes through and the [GS2DBodyFlat] every entity
 ## moves against, so a game has one object to hand around rather than three that have
 ## to be kept in step.
 ##
-## [b]No autoload.[/b] It registers itself in [DotRegistry] under [constant SERVICE].
+## [b]No autoload.[/b] It registers itself in [GSRegistry] under [constant SERVICE].
 ## A process running a server and a client at once needs two arenas, and
 ## [member service_scope] is how they coexist.
 
 # No log channel: a container of positions with nothing outside the process to fail
-# against. Its service registration is logged by DotRegistry, and the one silent path
+# against. Its service registration is logged by GSRegistry, and the one silent path
 # it had -- a refused register() -- is a programmer error and says so with push_error.
 const SERVICE := &"dot_2d_arena"
 
@@ -55,12 +55,12 @@ signal entity_forgotten(id: int)
 @export var service_scope: StringName = &""
 
 ## Everything's position and radius.
-var grid: Dot2DGrid = null
+var grid: GS2DGrid = null
 
 ## What entities collide against.
-var body: Dot2DBodyFlat = null
+var body: GS2DBodyFlat = null
 
-## id -> [Dot2DState] for entities that registered one.
+## id -> [GS2DState] for entities that registered one.
 var _states: Dictionary = {}
 
 var _registered_name: StringName = &""
@@ -74,29 +74,29 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	if _registered_name != &"":
-		DotRegistry.unregister_instance(_registered_name, self)
+		GSRegistry.unregister_instance(_registered_name, self)
 		_registered_name = &""
 
 
-func setup() -> DotResult:
+func setup() -> GSResult:
 	if grid == null:
-		grid = Dot2DGrid.new(cell_size)
+		grid = GS2DGrid.new(cell_size)
 
 	if body == null:
-		body = Dot2DBodyFlat.in_bounds(bounds)
+		body = GS2DBodyFlat.in_bounds(bounds)
 
 	body.bounds = bounds
 	body.bounce = bounce_off_walls
 
 	if register_service:
 		_registered_name = (
-			DotRegistry.scoped_name(SERVICE, service_scope)
+			GSRegistry.scoped_name(SERVICE, service_scope)
 			if service_scope != &""
 			else SERVICE
 		)
-		DotRegistry.register(_registered_name, self)
+		GSRegistry.register(_registered_name, self)
 
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 # --- Entities --------------------------------------------------------------
@@ -105,11 +105,11 @@ func setup() -> DotResult:
 ##
 ## The alternative — every entity calling `grid.place` itself — is one entity that
 ## forgets, which is an entity nothing can see and which sees nothing, with no error.
-func register(id: int, state: Dot2DState) -> void:
+func register(id: int, state: GS2DState) -> void:
 	if id == 0 or state == null:
 		# push_error rather than a quiet return: the caller is the bug, and the symptom is
 		# exactly the invisible entity described above, arriving with no stack to find it by.
-		push_error("Dot2DArena.register(%d) refused: %s." % [
+		push_error("GS2DArena.register(%d) refused: %s." % [
 			id, "id 0 is reserved" if id == 0 else "the state is null"
 		])
 		return
@@ -128,7 +128,7 @@ func forget(id: int) -> void:
 	entity_forgotten.emit(id)
 
 
-func state_of(id: int) -> Dot2DState:
+func state_of(id: int) -> GS2DState:
 	return _states.get(id)
 
 
@@ -151,7 +151,7 @@ func entity_count() -> int:
 ## re-place the same entity many times a tick.
 func sync_grid() -> void:
 	for key in _states.keys():
-		var state: Dot2DState = _states[key]
+		var state: GS2DState = _states[key]
 
 		if state == null or not state.active:
 			grid.remove(int(key))
@@ -211,7 +211,7 @@ func clamp_position(position: Vector2, radius: float = 0.0) -> Vector2:
 ## from anything bigger — filters candidates itself with [method overlapping]; this is
 ## the placement, not the policy.
 func spawn_position(key: int, inset: float = 64.0) -> Vector2:
-	var h := Dot2DScatter._hash(key, 0x5A17)
+	var h := GS2DScatter._hash(key, 0x5A17)
 	var inner := Rect2(
 		bounds.position + Vector2(inset, inset),
 		Vector2(
@@ -221,8 +221,8 @@ func spawn_position(key: int, inset: float = 64.0) -> Vector2:
 	)
 
 	return Vector2(
-		inner.position.x + Dot2DScatter._unit(h) * inner.size.x,
-		inner.position.y + Dot2DScatter._unit(Dot2DScatter._hash(h, 1)) * inner.size.y,
+		inner.position.x + GS2DScatter._unit(h) * inner.size.x,
+		inner.position.y + GS2DScatter._unit(GS2DScatter._hash(h, 1)) * inner.size.y,
 	)
 
 

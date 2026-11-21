@@ -12,12 +12,12 @@ It gives you three movement feels (top-down, thrust, and mass-based blob), a spa
 ## Use
 
 ```gdscript
-var world := Dot2DArena.new()
+var world := GS2DArena.new()
 world.bounds = Rect2(Vector2(-2000, -2000), Vector2(4000, 4000))
 add_child(world)
 
-var player := Dot2DController.new()
-player.tunables = Dot2DTunables.blob()
+var player := GS2DController.new()
+player.tunables = GS2DTunables.blob()
 add_child(player)
 player.attach(world, session_id)
 
@@ -32,7 +32,7 @@ for id in world.overlapping(state.position, state.radius, my_id):
 
 ## How it works
 
-The simulation is a pure function of a `Dot2DCommand`: no device, no clock, no node, no randomness. A client predicting a move, a server re-running it and a reconciliation replay all reach the same position.
+The simulation is a pure function of a `GS2DCommand`: no device, no clock, no node, no randomness. A client predicting a move, a server re-running it and a reconciliation replay all reach the same position.
 
 The sampler turns the pointer into a direction and a world-space distance before the command is sent. A screen position means nothing on a server that has no window or camera.
 
@@ -40,24 +40,24 @@ The sampler turns the pointer into a direction and a world-space distance before
 
 | Class | What it does |
 | --- | --- |
-| `Dot2DCommand` | What a player asked for, sanitised against hostile input. |
-| `Dot2DState` | Position, velocity, facing, radius and mass. Can be snapshotted and replayed. |
-| `Dot2DTunables` | How the entity moves: top-down, thrust or blob. |
-| `Dot2DMassRules` | How mass becomes size, speed and the right to eat. |
-| `Dot2DMotor` | The simulation itself. Pure and node-free. |
-| `Dot2DAdminModifiers` | Admin noclip, freeze and speed step, carried in the state so the owning client predicts them. |
-| `Dot2DBody` | Collision. `Flat` is for a bounded rectangle, `Physics` for everything else. |
-| `Dot2DGrid` | A uniform spatial hash for local queries. |
-| `Dot2DScatter` | Pellet fields laid out from a seed and refilled on a per-tick budget. |
-| `Dot2DArena` | The world: bounds, grid, interest rectangles and spawn positions. |
-| `Dot2DController` | Drives one entity, local, commanded or remote. |
-| `Dot2DSampler` | Turns devices into commands. The only place input is read. |
-| `Dot2DCameraRig` | Follows the entity, zooms with size and stays inside the world. |
-| `Dot2DNetSync` | What to replicate, without naming a GameSpice Net type. |
+| `GS2DCommand` | What a player asked for, sanitised against hostile input. |
+| `GS2DState` | Position, velocity, facing, radius and mass. Can be snapshotted and replayed. |
+| `GS2DTunables` | How the entity moves: top-down, thrust or blob. |
+| `GS2DMassRules` | How mass becomes size, speed and the right to eat. |
+| `GS2DMotor` | The simulation itself. Pure and node-free. |
+| `GS2DAdminModifiers` | Admin noclip, freeze and speed step, carried in the state so the owning client predicts them. |
+| `GS2DBody` | Collision. `Flat` is for a bounded rectangle, `Physics` for everything else. |
+| `GS2DGrid` | A uniform spatial hash for local queries. |
+| `GS2DScatter` | Pellet fields laid out from a seed and refilled on a per-tick budget. |
+| `GS2DArena` | The world: bounds, grid, interest rectangles and spawn positions. |
+| `GS2DController` | Drives one entity, local, commanded or remote. |
+| `GS2DSampler` | Turns devices into commands. The only place input is read. |
+| `GS2DCameraRig` | Follows the entity, zooms with size and stays inside the world. |
+| `GS2DNetSync` | What to replicate, without naming a GameSpice Net type. |
 
 ## Mass rules
 
-`Dot2DMassRules` keeps the three blob relationships in one place so they agree. These are the defaults and can be changed in the rules resource.
+`GS2DMassRules` keeps the three blob relationships in one place so they agree. These are the defaults and can be changed in the rules resource.
 
 | Rule | Default |
 | --- | --- |
@@ -67,13 +67,13 @@ The sampler turns the pointer into a direction and a world-space distance before
 
 ## Collision backends
 
-`Dot2DBodyFlat` is the one to use in production. It is analytic, and a client and a server get bit-identical answers. A physics query depends on solver state from earlier steps, so it cannot promise that. `Dot2DBodyPhysics` is for unpredicted entities and single-player games.
+`GS2DBodyFlat` is the one to use in production. It is analytic, and a client and a server get bit-identical answers. A physics query depends on solver state from earlier steps, so it cannot promise that. `GS2DBodyPhysics` is for unpredicted entities and single-player games.
 
 ## Limits
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `Dot2DMassRules.max_pieces` | 16 | Most pieces one player may have; 0 = unlimited, negative is refused by `validate()`. |
+| `GS2DMassRules.max_pieces` | 16 | Most pieces one player may have; 0 = unlimited, negative is refused by `validate()`. |
 
 ## Test
 

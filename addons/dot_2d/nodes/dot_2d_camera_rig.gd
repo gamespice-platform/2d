@@ -1,5 +1,5 @@
 @tool
-class_name Dot2DCameraRig
+class_name GS2DCameraRig
 extends Camera2D
 
 ## Follows an entity, zooms with its size, and stays inside the arena.
@@ -17,7 +17,7 @@ const CHANNEL := "dot2d.camera"
 @export_group("Target")
 
 ## What to follow. A [Node2D]; usually the controlled entity.
-@export var target_ref: DotNodeRef = null
+@export var target_ref: GSNodeRef = null
 
 ## Seconds to catch up. Zero snaps.
 @export_range(0.0, 2.0, 0.01) var follow_sec: float = 0.12
@@ -52,13 +52,13 @@ const CHANNEL := "dot2d.camera"
 ## Keep the view inside the arena. Resolved from the arena when one is bound.
 @export var clamp_to_arena: bool = true
 
-@export var arena_ref: DotNodeRef = null
+@export var arena_ref: GSNodeRef = null
 
 var _target: Node2D = null
-var _arena: Dot2DArena = null
+var _arena: GS2DArena = null
 var _zoom_target: float = 1.0
-## Carries the zoom exports into GameSpice Camera's [DotCameraZoom2D], which owns the zoom and clamp arithmetic.
-var _cfg := DotCameraConfig.new()
+## Carries the zoom exports into GameSpice Camera's [GSCameraZoom2D], which owns the zoom and clamp arithmetic.
+var _cfg := GSCameraConfig.new()
 
 
 func _ready() -> void:
@@ -69,7 +69,7 @@ func _ready() -> void:
 		_target = target_ref.resolve_or_null(self, CHANNEL) as Node2D
 
 	if arena_ref != null:
-		_arena = arena_ref.resolve_or_null(self, CHANNEL) as Dot2DArena
+		_arena = arena_ref.resolve_or_null(self, CHANNEL) as GS2DArena
 
 	_zoom_target = base_zoom
 	zoom = Vector2(base_zoom, base_zoom)
@@ -86,10 +86,10 @@ func follow(node: Node2D) -> void:
 	if node != null:
 		global_position = node.global_position
 	else:
-		DotLog.debug(CHANNEL, "camera follow cleared; it holds its position")
+		GSLog.debug(CHANNEL, "camera follow cleared; it holds its position")
 
 
-func bind_arena(arena: Dot2DArena) -> void:
+func bind_arena(arena: GS2DArena) -> void:
 	_arena = arena
 
 
@@ -126,7 +126,7 @@ func _zoom(delta: float) -> void:
 		_cfg.zoom_2d_exponent = zoom_exponent
 		_cfg.zoom_2d_min = min_zoom
 		_cfg.zoom_2d_max = max_zoom
-		_zoom_target = DotCameraZoom2D.zoom_for(_cfg, radius, base_zoom)
+		_zoom_target = GSCameraZoom2D.zoom_for(_cfg, radius, base_zoom)
 
 	var current := zoom.x
 	var next := (
@@ -137,13 +137,13 @@ func _zoom(delta: float) -> void:
 	zoom = Vector2(next, next)
 
 
-## The target's radius, from a [Dot2DController] if it has one.
+## The target's radius, from a [GS2DController] if it has one.
 ##
 ## Duck-typed rather than requiring a controller, so a camera can follow anything —
 ## a plain sprite, a cursor, a cinematic marker — and simply not zoom.
 func _target_radius() -> float:
-	if _target.has_method(&"describe") and _target is Dot2DController:
-		return (_target as Dot2DController).state.radius
+	if _target.has_method(&"describe") and _target is GS2DController:
+		return (_target as GS2DController).state.radius
 
 	return 0.0
 
@@ -164,7 +164,7 @@ func _target_radius() -> float:
 ## past it. Found by rendering a frame of a level and looking at it; no check in this addon
 ## or in any game using it could see it.
 func _half_extent() -> Vector2:
-	return DotCameraZoom2D.half_extent(get_viewport_rect().size, zoom.x)
+	return GSCameraZoom2D.half_extent(get_viewport_rect().size, zoom.x)
 
 
 ## Keeps the visible rectangle inside the arena.
@@ -183,7 +183,7 @@ func _clamp() -> void:
 
 	# A view wider than the world is centred rather than clamped to a negative range, which is
 	# the normal case for a small arena or a very zoomed-out blob.
-	global_position = DotCameraZoom2D.clamp_centre(global_position, _half_extent(), bounds)
+	global_position = GSCameraZoom2D.clamp_centre(global_position, _half_extent(), bounds)
 
 
 ## The world rectangle currently visible. What interest management can be checked

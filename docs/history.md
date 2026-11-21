@@ -4,7 +4,7 @@ Bugs worth recognising if they come back. The lessons that still apply are rules
 
 ## The hash returned half its range
 
-`Dot2DScatter._unit` once shifted by 40. The mixer output is masked to 63 bits, so that left 23 and every value fell in `[0, 0.5)`: every pellet in one corner of the world, which the self-test caught because it bins slots into quadrants. **The same line existed in dot-combat's `DotSpread`**, where the symptom was invisible: the spread azimuth covered half a circle and every spread pattern was a half-moon that merely "felt off". Both are fixed and both have a quadrant check, because a maximum-magnitude check alone passes for a half-moon.
+`GS2DScatter._unit` once shifted by 40. The mixer output is masked to 63 bits, so that left 23 and every value fell in `[0, 0.5)`: every pellet in one corner of the world, which the self-test caught because it bins slots into quadrants. **The same line existed in dot-combat's `GSSpread`**, where the symptom was invisible: the spread azimuth covered half a circle and every spread pattern was a half-moon that merely "felt off". Both are fixed and both have a quadrant check, because a maximum-magnitude check alone passes for a half-moon.
 
 ## A grid holding twice the pellets
 
@@ -12,4 +12,4 @@ Because `reseed()` keeps the index counter, a new field's grid ids sit beside th
 
 ## A config nothing read
 
-`Dot2DConfig` was documented field by field and applied by nothing: this family's most repeated bug, here a whole resource of it. `max_catchup_ticks` was the one that mattered: the controller capped a frame's backlog at a literal 8 while the config declared the number beside it. `apply_to_controller` and `apply_to_scatter` were added, and the controller exports `max_catchup_ticks`.
+`GS2DConfig` was documented field by field and applied by nothing: this family's most repeated bug, here a whole resource of it. `max_catchup_ticks` was the one that mattered: the controller capped a frame's backlog at a literal 8 while the config declared the number beside it. `apply_to_controller` and `apply_to_scatter` were added, and the controller exports `max_catchup_ticks`.

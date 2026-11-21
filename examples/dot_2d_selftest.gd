@@ -23,7 +23,7 @@ const SECTIONS := 20
 
 
 func _ready() -> void:
-	DotLog.set_level(DotLog.Level.ERROR)
+	GSLog.set_level(GSLog.Level.ERROR)
 	_run.call_deferred()
 
 
@@ -80,25 +80,25 @@ func _run() -> void:
 func _test_admin() -> void:
 	_section("admin modifiers")
 
-	var tunables := Dot2DTunables.topdown()
+	var tunables := GS2DTunables.topdown()
 	tunables.max_speed = 300.0
 	tunables.acceleration = 3000.0
 	tunables.friction = 3000.0
 
-	var body := Dot2DBodyFlat.centred(Vector2(1000.0, 1000.0))
+	var body := GS2DBodyFlat.centred(Vector2(1000.0, 1000.0))
 	body.add_obstacle(Vector2(100.0, 0.0), 50.0)
 
-	var motor := Dot2DMotor.with_tunables(tunables)
+	var motor := GS2DMotor.with_tunables(tunables)
 	motor.body = body
 
 	# Noclip: straight through the pillar, and still inside the world.
-	var walker := Dot2DState.at(Vector2.ZERO, 10.0)
+	var walker := GS2DState.at(Vector2.ZERO, 10.0)
 	_run_ticks(motor, walker, _move_command(Vector2.RIGHT), 60)
 	_check(walker.position.x < 45.0, "without noclip the pillar stops a walker", str(walker.position))
 
-	var ghost := Dot2DState.at(Vector2.ZERO, 10.0)
-	var on := Dot2DAdminModifiers.set_noclip(ghost, true)
-	_check(on.ok and Dot2DAdminModifiers.is_noclipped(ghost), "noclip is set on a state")
+	var ghost := GS2DState.at(Vector2.ZERO, 10.0)
+	var on := GS2DAdminModifiers.set_noclip(ghost, true)
+	_check(on.ok and GS2DAdminModifiers.is_noclipped(ghost), "noclip is set on a state")
 	_run_ticks(motor, ghost, _move_command(Vector2.RIGHT), 60)
 	_check(ghost.position.x > 200.0, "and a noclipped walker goes through the pillar", str(ghost.position))
 	_run_ticks(motor, ghost, _move_command(Vector2.RIGHT), 120)
@@ -107,34 +107,34 @@ func _test_admin() -> void:
 		is_equal_approx(body.move_through(Vector2.ZERO, Vector2(2000.0, 0.0), 10.0).x, 490.0),
 		"move_through clamps to the bounds by itself"
 	)
-	var off := Dot2DAdminModifiers.set_noclip(ghost, false)
-	_check(off.ok and not Dot2DAdminModifiers.is_noclipped(ghost), "and noclip comes off again")
+	var off := GS2DAdminModifiers.set_noclip(ghost, false)
+	_check(off.ok and not GS2DAdminModifiers.is_noclipped(ghost), "and noclip comes off again")
 
 	# Freeze: nothing moves, however hard the player pushes.
-	var held := Dot2DState.at(Vector2(-200.0, 200.0), 10.0)
+	var held := GS2DState.at(Vector2(-200.0, 200.0), 10.0)
 	held.velocity = Vector2(250.0, 0.0)
-	var frozen := Dot2DAdminModifiers.set_frozen(held, true)
+	var frozen := GS2DAdminModifiers.set_frozen(held, true)
 	_check(frozen.ok and held.velocity == Vector2.ZERO, "freezing stops the entity on the spot")
 	_run_ticks(motor, held, _move_command(Vector2.UP), 60)
 	_check(held.position == Vector2(-200.0, 200.0), "and a frozen entity does not move", str(held.position))
 	_check(held.velocity == Vector2.ZERO, "or gather speed to spend later")
 
-	var both := Dot2DState.at(Vector2(-200.0, -200.0), 10.0)
-	var _n := Dot2DAdminModifiers.set_noclip(both, true)
-	var _f := Dot2DAdminModifiers.set_frozen(both, true)
+	var both := GS2DState.at(Vector2(-200.0, -200.0), 10.0)
+	var _n := GS2DAdminModifiers.set_noclip(both, true)
+	var _f := GS2DAdminModifiers.set_frozen(both, true)
 	_run_ticks(motor, both, _move_command(Vector2.RIGHT), 30)
 	_check(both.position == Vector2(-200.0, -200.0), "freeze wins over noclip")
 
-	var _thaw := Dot2DAdminModifiers.set_frozen(held, false)
+	var _thaw := GS2DAdminModifiers.set_frozen(held, false)
 	_run_ticks(motor, held, _move_command(Vector2.UP), 30)
 	_check(held.position.y < 150.0, "and unfreezing gives the controls back", str(held.position))
 
 	# Blob mode reads the same bit: velocity is set outright there, and a freeze that only
 	# stopped the accelerating modes would be a freeze cell-eating games walk out of.
-	var blob_tunables := Dot2DTunables.blob()
-	var blob_motor := Dot2DMotor.with_tunables(blob_tunables)
-	var blob := Dot2DState.at(Vector2.ZERO, 10.0)
-	var _bf := Dot2DAdminModifiers.set_frozen(blob, true)
+	var blob_tunables := GS2DTunables.blob()
+	var blob_motor := GS2DMotor.with_tunables(blob_tunables)
+	var blob := GS2DState.at(Vector2.ZERO, 10.0)
+	var _bf := GS2DAdminModifiers.set_frozen(blob, true)
 	_run_ticks(blob_motor, blob, _aim_command(Vector2.RIGHT), 30)
 	_check(blob.position == Vector2.ZERO, "a frozen blob does not follow the pointer")
 
@@ -144,64 +144,64 @@ func _test_admin() -> void:
 	_done()
 
 
-func _admin_speed(motor: Dot2DMotor, blob_motor: Dot2DMotor) -> void:
+func _admin_speed(motor: GS2DMotor, blob_motor: GS2DMotor) -> void:
 	# Speed: a ladder, and the admin is told which step they got.
-	var fast := Dot2DState.at(Vector2(0.0, 300.0), 10.0)
-	var got := Dot2DAdminModifiers.set_speed(fast, 2.2)
+	var fast := GS2DState.at(Vector2(0.0, 300.0), 10.0)
+	var got := GS2DAdminModifiers.set_speed(fast, 2.2)
 	_check(got.ok and is_equal_approx(float(got.value), 2.0), "speed 2.2 lands on the 2x step", str(got.value))
 	# Twenty ticks, not sixty: at 600 a second a longer run reaches the wall, stops, and
 	# measures the wall.
 	_run_ticks(motor, fast, _move_command(Vector2.LEFT), 20)
 	_close(fast.speed(), 600.0, "and doubles the top speed", 0.5)
 
-	var normal := Dot2DState.at(Vector2(0.0, -300.0), 10.0)
+	var normal := GS2DState.at(Vector2(0.0, -300.0), 10.0)
 	_run_ticks(motor, normal, _move_command(Vector2.LEFT), 3)
-	var quick := Dot2DState.at(Vector2(0.0, -300.0), 10.0)
-	var _q := Dot2DAdminModifiers.set_speed(quick, 2.0)
+	var quick := GS2DState.at(Vector2(0.0, -300.0), 10.0)
+	var _q := GS2DAdminModifiers.set_speed(quick, 2.0)
 	_run_ticks(motor, quick, _move_command(Vector2.LEFT), 3)
 	_close(quick.speed(), normal.speed() * 2.0, "and the acceleration with it, so 2x is not a slide", 0.5)
 
-	var blob_fast := Dot2DState.at(Vector2.ZERO, 10.0)
-	var blob_slow := Dot2DState.at(Vector2.ZERO, 10.0)
-	var _bs := Dot2DAdminModifiers.set_speed(blob_fast, 0.5)
+	var blob_fast := GS2DState.at(Vector2.ZERO, 10.0)
+	var blob_slow := GS2DState.at(Vector2.ZERO, 10.0)
+	var _bs := GS2DAdminModifiers.set_speed(blob_fast, 0.5)
 	_run_ticks(blob_motor, blob_fast, _aim_command(Vector2.RIGHT), 1)
 	_run_ticks(blob_motor, blob_slow, _aim_command(Vector2.RIGHT), 1)
 	_close(blob_fast.speed(), blob_slow.speed() * 0.5, "a blob on 0.5x moves at half speed", 0.5)
 
-	var cleared := Dot2DAdminModifiers.set_speed(fast, 1.0)
+	var cleared := GS2DAdminModifiers.set_speed(fast, 1.0)
 	_check(
 		cleared.ok and is_equal_approx(float(cleared.value), 1.0) and fast.admin == 0,
 		"speed 1 clears the step and leaves no bits behind"
 	)
-	_check(not Dot2DAdminModifiers.set_speed(fast, 0.0).ok, "and speed 0 is refused rather than a second freeze")
-	_check(not Dot2DAdminModifiers.set_noclip(null, true).ok, "a missing state is refused, not a crash")
+	_check(not GS2DAdminModifiers.set_speed(fast, 0.0).ok, "and speed 0 is refused rather than a second freeze")
+	_check(not GS2DAdminModifiers.set_noclip(null, true).ok, "a missing state is refused, not a crash")
 
-	var every := Dot2DAdminModifiers.speed_bits(Dot2DAdminModifiers.NOCLIP, 3.0)
+	var every := GS2DAdminModifiers.speed_bits(GS2DAdminModifiers.NOCLIP, 3.0)
 	_check(
-		Dot2DAdminModifiers.bits_noclip(every) and is_equal_approx(Dot2DAdminModifiers.bits_speed(every), 3.0),
+		GS2DAdminModifiers.bits_noclip(every) and is_equal_approx(GS2DAdminModifiers.bits_speed(every), 3.0),
 		"a speed step leaves noclip where it was"
 	)
 	_check(
-		(Dot2DAdminModifiers.ALL & ~((1 << Dot2DNetSync.ADMIN_BITS) - 1)) == 0,
+		(GS2DAdminModifiers.ALL & ~((1 << GS2DNetSync.ADMIN_BITS) - 1)) == 0,
 		"every admin bit fits in what the wire carries"
 	)
 	_check(
-		is_equal_approx(Dot2DAdminModifiers.bits_speed(7 << Dot2DAdminModifiers.SPEED_SHIFT), 1.0),
+		is_equal_approx(GS2DAdminModifiers.bits_speed(7 << GS2DAdminModifiers.SPEED_SHIFT), 1.0),
 		"a step index past the ladder reads as none rather than out of range"
 	)
 	_check(
-		Dot2DAdminModifiers.words(every) == PackedStringArray(["noclip", "speed 3"]),
+		GS2DAdminModifiers.words(every) == PackedStringArray(["noclip", "speed 3"]),
 		"and the set describes itself in words",
-		str(Dot2DAdminModifiers.words(every))
+		str(GS2DAdminModifiers.words(every))
 	)
 
 
 
-func _admin_replay(motor: Dot2DMotor, ghost: Dot2DState) -> void:
+func _admin_replay(motor: GS2DMotor, ghost: GS2DState) -> void:
 	# The state carries it through everything a reconciliation does.
-	var copy := Dot2DState.new()
+	var copy := GS2DState.new()
 	copy.copy_from(ghost)
-	var _gn := Dot2DAdminModifiers.set_noclip(ghost, true)
+	var _gn := GS2DAdminModifiers.set_noclip(ghost, true)
 	copy.copy_from(ghost)
 	_check(copy.admin == ghost.admin and copy.admin != 0, "a rewind copies the admin bits")
 	var stripped := ghost.duplicate_state()
@@ -213,9 +213,9 @@ func _admin_replay(motor: Dot2DMotor, ghost: Dot2DState) -> void:
 	# land on the same spot. The same replay with the bits stripped — a server that
 	# skipped the collision on its own side only — must NOT, or the first check could not
 	# have failed.
-	var server := Dot2DState.at(Vector2(-60.0, 0.0), 10.0)
-	var _sn := Dot2DAdminModifiers.set_noclip(server, true)
-	var history: Array[Dot2DState] = []
+	var server := GS2DState.at(Vector2(-60.0, 0.0), 10.0)
+	var _sn := GS2DAdminModifiers.set_noclip(server, true)
+	var history: Array[GS2DState] = []
 	for tick in range(40):
 		history.append(server.duplicate_state())
 		motor.simulate(server, _move_command(Vector2.RIGHT), STEP, tick)
@@ -237,41 +237,41 @@ func _admin_replay(motor: Dot2DMotor, ghost: Dot2DState) -> void:
 
 
 
-func _admin_wire(tunables: Dot2DTunables) -> void:
+func _admin_wire(tunables: GS2DTunables) -> void:
 	# On the wire.
-	var sent := Dot2DState.at(Vector2(5.0, 5.0), 10.0)
-	var _a := Dot2DAdminModifiers.set_frozen(sent, true)
-	var _b := Dot2DAdminModifiers.set_speed(sent, 0.5)
+	var sent := GS2DState.at(Vector2(5.0, 5.0), 10.0)
+	var _a := GS2DAdminModifiers.set_frozen(sent, true)
+	var _b := GS2DAdminModifiers.set_speed(sent, 0.5)
 	var behaviour := FakeBehaviour.new()
-	Dot2DNetSync.pull(sent, behaviour)
+	GS2DNetSync.pull(sent, behaviour)
 	_check(behaviour.net_admin == sent.admin, "pull writes the admin bits")
-	var arrived := Dot2DState.new()
-	Dot2DNetSync.push(behaviour, arrived)
+	var arrived := GS2DState.new()
+	GS2DNetSync.push(behaviour, arrived)
 	_check(arrived.admin == sent.admin, "and push brings them back")
 
 	var older := OlderBehaviour.new()
 	older.net_position = Vector2(42.0, 7.0)
-	var kept := Dot2DState.new()
-	kept.admin = Dot2DAdminModifiers.NOCLIP
-	Dot2DNetSync.push(older, kept)
+	var kept := GS2DState.new()
+	kept.admin = GS2DAdminModifiers.NOCLIP
+	GS2DNetSync.push(older, kept)
 	_check(
-		kept.position == Vector2(42.0, 7.0) and kept.admin == Dot2DAdminModifiers.NOCLIP,
+		kept.position == Vector2(42.0, 7.0) and kept.admin == GS2DAdminModifiers.NOCLIP,
 		"a behaviour with no net_admin still pushes, and leaves the bits alone"
 	)
 	_check(
-		Dot2DNetSync.estimated_bits() <= 128,
+		GS2DNetSync.estimated_bits() <= 128,
 		"and an entity still fits in sixteen bytes with them",
-		"%d bits" % Dot2DNetSync.estimated_bits()
+		"%d bits" % GS2DNetSync.estimated_bits()
 	)
 
 	# The controller, which a HUD reads.
-	var controller := Dot2DController.new()
+	var controller := GS2DController.new()
 	controller.tunables = tunables
 	add_child(controller)
-	var _cf := Dot2DAdminModifiers.set_frozen(controller.state, true)
+	var _cf := GS2DAdminModifiers.set_frozen(controller.state, true)
 	_check(is_zero_approx(controller.current_speed_limit()), "a frozen controller reports a top speed of zero")
-	var _cu := Dot2DAdminModifiers.set_frozen(controller.state, false)
-	var _cs := Dot2DAdminModifiers.set_speed(controller.state, 2.0)
+	var _cu := GS2DAdminModifiers.set_frozen(controller.state, false)
+	var _cs := GS2DAdminModifiers.set_speed(controller.state, 2.0)
 	_close(controller.current_speed_limit(), 600.0, "and a fast one the stepped speed")
 	controller.queue_free()
 

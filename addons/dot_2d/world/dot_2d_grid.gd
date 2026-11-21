@@ -1,4 +1,4 @@
-class_name Dot2DGrid
+class_name GS2DGrid
 extends RefCounted
 
 ## A uniform spatial hash. What makes a world with thousands of entities possible.

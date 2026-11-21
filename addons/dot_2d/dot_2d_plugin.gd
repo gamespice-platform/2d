@@ -4,16 +4,16 @@ extends EditorPlugin
 ## Editor entry point for GameSpice 2D. Registers inspector types only.
 ##
 ## No autoload, for the family's reason: a process may run a server and a client at
-## once, and a singleton arena makes that impossible. [Dot2DArena] registers itself in
-## [DotRegistry] instead.
+## once, and a singleton arena makes that impossible. [GS2DArena] registers itself in
+## [GSRegistry] instead.
 
 const _ICON := "res://addons/dot_2d/icon_placeholder.svg"
 
 const _TYPES := [
-	["Dot2DArena", "Node2D", "res://addons/dot_2d/world/dot_2d_arena.gd"],
-	["Dot2DController", "Node2D", "res://addons/dot_2d/nodes/dot_2d_controller.gd"],
-	["Dot2DSampler", "Node", "res://addons/dot_2d/nodes/dot_2d_sampler.gd"],
-	["Dot2DCameraRig", "Camera2D", "res://addons/dot_2d/nodes/dot_2d_camera_rig.gd"],
+	["GS2DArena", "Node2D", "res://addons/dot_2d/world/dot_2d_arena.gd"],
+	["GS2DController", "Node2D", "res://addons/dot_2d/nodes/dot_2d_controller.gd"],
+	["GS2DSampler", "Node", "res://addons/dot_2d/nodes/dot_2d_sampler.gd"],
+	["GS2DCameraRig", "Camera2D", "res://addons/dot_2d/nodes/dot_2d_camera_rig.gd"],
 ]
 
 

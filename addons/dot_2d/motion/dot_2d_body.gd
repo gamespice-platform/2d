@@ -1,13 +1,13 @@
-class_name Dot2DBody
+class_name GS2DBody
 extends RefCounted
 
 ## What a 2D entity collides against.
 ##
-## The same abstraction GameSpice Player Controller's [code]DotFpsBody[/code] is, for the same
+## The same abstraction GameSpice Player Controller's [code]GSFpsBody[/code] is, for the same
 ## reason: a headless server, a self-test and a deterministic replay all need to move
 ## against a world and only one of the three has a populated physics space.
 ##
-## [Dot2DBodyFlat] — an arena rectangle and a list of circles — is not a fallback. It
+## [GS2DBodyFlat] — an arena rectangle and a list of circles — is not a fallback. It
 ## is what a cell-eating game actually collides against, and it gives bit-identical
 ## answers on a client and a server, which a physics query does not.
 
@@ -34,7 +34,7 @@ class Hit extends RefCounted:
 ##
 ## Must be deterministic given the same arguments. A backend that consults a physics
 ## solver whose internal state depends on what ran before it cannot be, which is why
-## [Dot2DBodyPhysics] is documented as unsuitable for a predicted entity.
+## [GS2DBodyPhysics] is documented as unsuitable for a predicted entity.
 func move(
 	_from: Vector2,
 	_motion: Vector2,
@@ -49,8 +49,8 @@ func move(
 ## noclip.
 ##
 ## The default goes wherever it was told, which is right for a backend with no idea of a
-## world's edge. [Dot2DBodyFlat] keeps its bounds, because past them there is nothing
-## drawn and past [constant Dot2DNetSync.WORLD_EXTENT] a position wraps.
+## world's edge. [GS2DBodyFlat] keeps its bounds, because past them there is nothing
+## drawn and past [constant GS2DNetSync.WORLD_EXTENT] a position wraps.
 func move_through(from: Vector2, motion: Vector2, _radius: float) -> Vector2:
 	return from + motion
 

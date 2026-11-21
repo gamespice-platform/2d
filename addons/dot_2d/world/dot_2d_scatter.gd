@@ -1,4 +1,4 @@
-class_name Dot2DScatter
+class_name GS2DScatter
 extends RefCounted
 
 ## Thousands of little things spread over a world, placed and replaced
@@ -19,7 +19,7 @@ extends RefCounted
 # No log channel: a deterministic slot table. A refused take() is two clients claiming
 # one pellet, which is normal at any latency, and the caller holds the peer to name.
 
-## Same masking discipline as [DotSpread] in dot-combat: GDScript integers are signed
+## Same masking discipline as [GSSpread] in dot-combat: GDScript integers are signed
 ## 64-bit and the published mixing constants are all above 2^63.
 const _MASK := 0x7FFFFFFFFFFFFFFF
 
@@ -50,8 +50,8 @@ var _placed: int = 0
 var _taken: int = 0
 
 
-static func over(rect: Rect2, count: int, world_seed: int = 1) -> Dot2DScatter:
-	var scatter := Dot2DScatter.new()
+static func over(rect: Rect2, count: int, world_seed: int = 1) -> GS2DScatter:
+	var scatter := GS2DScatter.new()
 	scatter.bounds = rect
 	scatter.target_count = count
 	scatter.seed_value = world_seed
@@ -194,12 +194,12 @@ func reseed(new_seed: int) -> void:
 	clear()
 
 
-## Registers every live slot into a [Dot2DGrid].
+## Registers every live slot into a [GS2DGrid].
 ##
 ## [param id_base] is added to the slot index to make the grid id, so pellets and
 ## players can share one grid without colliding — a game usually gives players low ids
 ## and pellets a large base.
-func populate(grid: Dot2DGrid, id_base: int, radius: float) -> void:
+func populate(grid: GS2DGrid, id_base: int, radius: float) -> void:
 	for index in alive_indices():
 		grid.place(id_base + index, position_of(index), radius)
 

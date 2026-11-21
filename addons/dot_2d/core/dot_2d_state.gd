@@ -1,10 +1,10 @@
-class_name Dot2DState
+class_name GS2DState
 extends RefCounted
 
 ## Everything about a 2D entity that the simulation reads and writes.
 ##
 ## Kept apart from the node for the reason GameSpice Player Controller keeps
-## [code]DotFpsState[/code] apart: a state that lives on a [Node2D] cannot be
+## [code]GSFpsState[/code] apart: a state that lives on a [Node2D] cannot be
 ## snapshotted, rewound or replayed without touching the scene tree, and
 ## reconciliation does all three several times a second.
 
@@ -31,11 +31,11 @@ var active: bool = true
 var flags: int = 0
 
 ## What an administrator has done to how this entity moves: noclip, freeze, a speed step.
-## [Dot2DAdminModifiers] owns the bits.
+## [GS2DAdminModifiers] owns the bits.
 ##
 ## In the state rather than on the server's side of a game because it has to be
 ## [i]simulated[/i] on the owning client too: a rewind copies it, the motor reads it and
-## [Dot2DNetSync] replicates it, so a predicting client replays exactly what the server
+## [GS2DNetSync] replicates it, so a predicting client replays exactly what the server
 ## ran. Apart from [member flags] because those are the game's, every bit of them.
 var admin: int = 0
 
@@ -43,8 +43,8 @@ var admin: int = 0
 var tick: int = 0
 
 
-static func at(p_position: Vector2, p_radius: float = 1.0) -> Dot2DState:
-	var state := Dot2DState.new()
+static func at(p_position: Vector2, p_radius: float = 1.0) -> GS2DState:
+	var state := GS2DState.new()
 	state.position = p_position
 	state.radius = p_radius
 	return state
@@ -65,7 +65,7 @@ func speed() -> float:
 	return velocity.length()
 
 
-func copy_from(other: Dot2DState) -> void:
+func copy_from(other: GS2DState) -> void:
 	position = other.position
 	velocity = other.velocity
 	facing = other.facing
@@ -77,8 +77,8 @@ func copy_from(other: Dot2DState) -> void:
 	tick = other.tick
 
 
-func duplicate_state() -> Dot2DState:
-	var copy := Dot2DState.new()
+func duplicate_state() -> GS2DState:
+	var copy := GS2DState.new()
 	copy.copy_from(self)
 	return copy
 
@@ -89,7 +89,7 @@ func duplicate_state() -> Dot2DState:
 ## equality corrects on every tick — two machines doing the same float arithmetic in a
 ## different order do not produce bit-identical results — and a client that is
 ## corrected every tick is a client that rubber-bands permanently.
-func matches(other: Dot2DState, tolerance: float = 0.05) -> bool:
+func matches(other: GS2DState, tolerance: float = 0.05) -> bool:
 	if other == null:
 		return false
 
@@ -114,12 +114,12 @@ func describe() -> Dictionary:
 		"mass": mass,
 		"active": active,
 		"flags": flags,
-		"admin": Dot2DAdminModifiers.words(admin),
+		"admin": GS2DAdminModifiers.words(admin),
 		"tick": tick,
 	}
 
 
 func _to_string() -> String:
-	return "Dot2DState(%.1f,%.1f r%.1f m%.1f)" % [
+	return "GS2DState(%.1f,%.1f r%.1f m%.1f)" % [
 		position.x, position.y, radius, mass
 	]

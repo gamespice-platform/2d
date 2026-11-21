@@ -1,12 +1,12 @@
-class_name Dot2DAdminModifiers
+class_name GS2DAdminModifiers
 extends RefCounted
 
 ## What an administrator can do to how somebody moves in 2D: noclip, freeze and a speed
-## step — carried in [member Dot2DState.admin], so every one of them is predicted.
+## step — carried in [member GS2DState.admin], so every one of them is predicted.
 ##
 ## [codeblock]
-## Dot2DAdminModifiers.set_noclip(piece.state, true)     # server side
-## Dot2DAdminModifiers.set_speed(piece.state, 2.0)       # -> DotResult(2.0)
+## GS2DAdminModifiers.set_noclip(piece.state, true)     # server side
+## GS2DAdminModifiers.set_speed(piece.state, 2.0)       # -> GSResult(2.0)
 ## [/codeblock]
 ##
 ## [b]Why a field in the state, and not a flag on the server.[/b] Everything here is
@@ -14,14 +14,14 @@ extends RefCounted
 ## client predicts its own movement. A server that zeroed a player's velocity, or skipped
 ## their collision, would be simulating a player the client is not: the client's replay
 ## runs the ordinary motor, disagrees on every tick, and is corrected on every snapshot —
-## rubber-banding, the one symptom an admin tool must not have. [member Dot2DState.admin] is
-## copied by a rewind, compared by [method Dot2DState.matches] and replicated by
-## [Dot2DNetSync] as `net_admin`, so the client's replay reads the same bits the server's
+## rubber-banding, the one symptom an admin tool must not have. [member GS2DState.admin] is
+## copied by a rewind, compared by [method GS2DState.matches] and replicated by
+## [GS2DNetSync] as `net_admin`, so the client's replay reads the same bits the server's
 ## simulation did and the two cannot disagree about them. GameSpice Player Controller reached the
 ## same answer through its replicated modifier set; this motor has no modifier set, and one
 ## small bitfield is the whole of what the three abilities need.
 ##
-## [b]Not [member Dot2DState.flags].[/b] Those are a game's, every bit of them — the game
+## [b]Not [member GS2DState.flags].[/b] Those are a game's, every bit of them — the game
 ## that shipped first already uses eight — and reserving some for this addon would be a
 ## collision waiting for the game that uses sixteen.
 ##
@@ -30,25 +30,25 @@ extends RefCounted
 ## reproduce exactly. [method set_speed] picks the nearest step and says which.
 ##
 ## [b]Noclip keeps the arena.[/b] It passes through everything solid inside the world —
-## [Dot2DBodyFlat]'s obstacles, and whatever geometry a game resolves itself, which it
-## skips by asking [method is_noclipped] — but not through [member Dot2DBodyFlat.bounds].
+## [GS2DBodyFlat]'s obstacles, and whatever geometry a game resolves itself, which it
+## skips by asking [method is_noclipped] — but not through [member GS2DBodyFlat.bounds].
 ## Outside the rectangle there is nothing to see, nothing a game renders, and past
-## [constant Dot2DNetSync.WORLD_EXTENT] a position wraps to the other side of the world.
+## [constant GS2DNetSync.WORLD_EXTENT] a position wraps to the other side of the world.
 ##
 ## There is no gravity step: nothing in GameSpice 2D has gravity.
 
-# No log channel: static helpers over a value, which return DotResult and let the caller
+# No log channel: static helpers over a value, which return GSResult and let the caller
 # decide what to say.
 
 const NOCLIP := 1 << 0
 const FREEZE := 1 << 1
 
-## Where the speed step's index sits in [member Dot2DState.admin]: 0 is none, n is
+## Where the speed step's index sits in [member GS2DState.admin]: 0 is none, n is
 ## `SPEED_STEPS[n - 1]`.
 const SPEED_SHIFT := 2
 const SPEED_MASK := 0b111 << SPEED_SHIFT
 
-## Every bit this addon may set. [constant Dot2DNetSync.ADMIN_BITS] must cover it.
+## Every bit this addon may set. [constant GS2DNetSync.ADMIN_BITS] must cover it.
 const ALL := NOCLIP | FREEZE | SPEED_MASK
 
 ## Speed multipliers an admin can put somebody on. 1.0 is "none" and is not a step.
@@ -134,47 +134,47 @@ static func nearest(steps: Array, scale: float) -> float:
 
 # --- On a state ------------------------------------------------------------------
 
-static func set_noclip(state: Dot2DState, on: bool) -> DotResult:
+static func set_noclip(state: GS2DState, on: bool) -> GSResult:
 	if state == null:
 		return _no_state()
 
 	state.admin = noclip_bits(state.admin, on)
-	return DotResult.success(on)
+	return GSResult.success(on)
 
 
 ## Holds a state still, or lets it go.
 ##
 ## The velocity is zeroed here as well as by the motor, so the snapshot that tells the
 ## client carries a stopped entity rather than one the client has to stop itself.
-static func set_frozen(state: Dot2DState, on: bool) -> DotResult:
+static func set_frozen(state: GS2DState, on: bool) -> GSResult:
 	if state == null:
 		return _no_state()
 
 	adopt(state, frozen_bits(state.admin, on))
-	return DotResult.success(on)
+	return GSResult.success(on)
 
 
 ## Puts a state on the speed step nearest [param scale]. 1.0 clears it.
 ##
 ## Returns the multiplier actually applied, which is the one to tell the admin.
-static func set_speed(state: Dot2DState, scale: float) -> DotResult:
+static func set_speed(state: GS2DState, scale: float) -> GSResult:
 	if state == null:
 		return _no_state()
 
 	if scale <= 0.0:
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"A multiplier has to be above zero.",
 			"use freeze to hold somebody still"
 		)
 
 	state.admin = speed_bits(state.admin, scale)
-	return DotResult.success(bits_speed(state.admin))
+	return GSResult.success(bits_speed(state.admin))
 
 
 ## Writes a whole set at once — what a game that keeps one value per player does to each
 ## of its states.
-static func adopt(state: Dot2DState, bits: int) -> void:
+static func adopt(state: GS2DState, bits: int) -> void:
 	if state == null:
 		return
 
@@ -184,23 +184,23 @@ static func adopt(state: Dot2DState, bits: int) -> void:
 		state.velocity = Vector2.ZERO
 
 
-static func is_noclipped(state: Dot2DState) -> bool:
+static func is_noclipped(state: GS2DState) -> bool:
 	return state != null and bits_noclip(state.admin)
 
 
-static func is_frozen(state: Dot2DState) -> bool:
+static func is_frozen(state: GS2DState) -> bool:
 	return state != null and bits_frozen(state.admin)
 
 
-static func speed_of(state: Dot2DState) -> float:
+static func speed_of(state: GS2DState) -> float:
 	return bits_speed(state.admin) if state != null else 1.0
 
 
 ## Takes every admin modifier off.
-static func clear(state: Dot2DState) -> void:
+static func clear(state: GS2DState) -> void:
 	if state != null:
 		state.admin = 0
 
 
-static func _no_state() -> DotResult:
-	return DotResult.fail(DotError.CODE_STATE, "That player has no movement to change.")
+static func _no_state() -> GSResult:
+	return GSResult.fail(GSError.CODE_STATE, "That player has no movement to change.")

@@ -47,23 +47,23 @@ func _group(title: String) -> void:
 
 # --- Fixtures --------------------------------------------------------------
 
-func _aim_command(direction: Vector2, reach: float = 1000.0) -> Dot2DCommand:
-	var command := Dot2DCommand.new()
+func _aim_command(direction: Vector2, reach: float = 1000.0) -> GS2DCommand:
+	var command := GS2DCommand.new()
 	command.aim = direction.normalized()
 	command.reach = reach
 	return command
 
 
-func _move_command(direction: Vector2) -> Dot2DCommand:
-	var command := Dot2DCommand.new()
+func _move_command(direction: Vector2) -> GS2DCommand:
+	var command := GS2DCommand.new()
 	command.move = direction.limit_length(1.0)
 	return command
 
 
 func _run_ticks(
-	motor: Dot2DMotor,
-	state: Dot2DState,
-	command: Dot2DCommand,
+	motor: GS2DMotor,
+	state: GS2DState,
+	command: GS2DCommand,
 	count: int
 ) -> void:
 	for tick in range(count):
