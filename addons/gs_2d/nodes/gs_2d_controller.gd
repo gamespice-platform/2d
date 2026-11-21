@@ -11,7 +11,7 @@ extends Node2D
 ## may have interpolated.
 
 const CHANNEL := "dot2d"
-const SERVICE := &"dot_2d_controller"
+const SERVICE := &"gs_2d_controller"
 
 ## A tick was simulated. The place to read the new state.
 signal simulated(tick: int, state: GS2DState)

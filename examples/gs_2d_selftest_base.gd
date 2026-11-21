@@ -1,7 +1,7 @@
 extends Node
 
 ## Shared fixtures and assertions for the GameSpice 2D self-test. The tests sit in layers above
-## this file ([code]dot_2d_selftest_mid.gd[/code] and up) and the runner is [code]dot_2d_selftest.gd[/code].
+## this file ([code]gs_2d_selftest_mid.gd[/code] and up) and the runner is [code]gs_2d_selftest.gd[/code].
 
 const TICK_RATE := 60
 const STEP := 1.0 / 60.0

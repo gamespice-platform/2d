@@ -1,9 +1,9 @@
-extends "res://examples/dot_2d_selftest_net.gd"
+extends "res://examples/gs_2d_selftest_net.gd"
 
-## Exercises everything in dot-2d, offline and headless.
+## Exercises everything in gs-2d, offline and headless.
 ##
 ## [codeblock]
-## godot --headless --path . res://examples/dot_2d_selftest.tscn
+## godot --headless --path . res://examples/gs_2d_selftest.tscn
 ## [/codeblock]
 ##
 ## Exits non-zero on any failure, so it works as a smoke test as-is.
@@ -28,7 +28,7 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	print("dot-2d self-test")
+	print("gs-2d self-test")
 	print("")
 
 	_test_command()

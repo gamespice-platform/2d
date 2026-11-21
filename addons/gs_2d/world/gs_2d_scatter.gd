@@ -19,7 +19,7 @@ extends RefCounted
 # No log channel: a deterministic slot table. A refused take() is two clients claiming
 # one pellet, which is normal at any latency, and the caller holds the peer to name.
 
-## Same masking discipline as [GSSpread] in dot-combat: GDScript integers are signed
+## Same masking discipline as [GSSpread] in gs-combat: GDScript integers are signed
 ## 64-bit and the published mixing constants are all above 2^63.
 const _MASK := 0x7FFFFFFFFFFFFFFF
 

@@ -112,7 +112,7 @@ static func properties() -> Array[StringName]:
 
 ## Writes a position. Pass to `replicate_custom` for `net_position`.
 ##
-## [param writer] is [Variant] for the same no-dot-net-identifier reason as everything
+## [param writer] is [Variant] for the same no-gs-net-identifier reason as everything
 ## else here.
 static func write_position(writer: Variant, value: Variant) -> void:
 	var position: Vector2 = value if value is Vector2 else Vector2.ZERO

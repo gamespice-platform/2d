@@ -1,4 +1,4 @@
-extends "res://examples/dot_2d_selftest_mid.gd"
+extends "res://examples/gs_2d_selftest_mid.gd"
 
 ## Self-test layer: grid, scatter, arena, interest and the controller.
 

@@ -1,4 +1,4 @@
-extends "res://examples/dot_2d_selftest_base.gd"
+extends "res://examples/gs_2d_selftest_base.gd"
 
 ## Self-test layer: command, state, mass, tunables, body, motor and determinism.
 

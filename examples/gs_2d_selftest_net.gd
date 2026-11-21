@@ -1,4 +1,4 @@
-extends "res://examples/dot_2d_selftest_world.gd"
+extends "res://examples/gs_2d_selftest_world.gd"
 
 ## Self-test layer: the net-sync descriptors and the fakes they are tested against.
 

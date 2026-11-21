@@ -7,13 +7,13 @@ extends EditorPlugin
 ## once, and a singleton arena makes that impossible. [GS2DArena] registers itself in
 ## [GSRegistry] instead.
 
-const _ICON := "res://addons/dot_2d/icon_placeholder.svg"
+const _ICON := "res://addons/gs_2d/icon_placeholder.svg"
 
 const _TYPES := [
-	["GS2DArena", "Node2D", "res://addons/dot_2d/world/dot_2d_arena.gd"],
-	["GS2DController", "Node2D", "res://addons/dot_2d/nodes/dot_2d_controller.gd"],
-	["GS2DSampler", "Node", "res://addons/dot_2d/nodes/dot_2d_sampler.gd"],
-	["GS2DCameraRig", "Camera2D", "res://addons/dot_2d/nodes/dot_2d_camera_rig.gd"],
+	["GS2DArena", "Node2D", "res://addons/gs_2d/world/gs_2d_arena.gd"],
+	["GS2DController", "Node2D", "res://addons/gs_2d/nodes/gs_2d_controller.gd"],
+	["GS2DSampler", "Node", "res://addons/gs_2d/nodes/gs_2d_sampler.gd"],
+	["GS2DCameraRig", "Camera2D", "res://addons/gs_2d/nodes/gs_2d_camera_rig.gd"],
 ]
 
 

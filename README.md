@@ -6,7 +6,7 @@ It gives you three movement feels (top-down, thrust, and mass-based blob), a spa
 
 ## Install
 
-1. Copy `addons/dot_2d/`, `addons/dot_core/` and `addons/dot_camera/` into your project.
+1. Copy `addons/gs_2d/`, `addons/gs_core/` and `addons/gs_camera/` into your project.
 2. Enable both in *Project > Project Settings > Plugins*.
 
 ## Use
@@ -79,7 +79,7 @@ The sampler turns the pointer into a direction and a world-space distance before
 
 ```bash
 godot --headless --path . --import
-godot --headless --path . res://examples/dot_2d_selftest.tscn
+godot --headless --path . res://examples/gs_2d_selftest.tscn
 ```
 
 The self-test runs offline and exits non-zero on any failure.

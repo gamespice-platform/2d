@@ -4,7 +4,7 @@ Bugs worth recognising if they come back. The lessons that still apply are rules
 
 ## The hash returned half its range
 
-`GS2DScatter._unit` once shifted by 40. The mixer output is masked to 63 bits, so that left 23 and every value fell in `[0, 0.5)`: every pellet in one corner of the world, which the self-test caught because it bins slots into quadrants. **The same line existed in dot-combat's `GSSpread`**, where the symptom was invisible: the spread azimuth covered half a circle and every spread pattern was a half-moon that merely "felt off". Both are fixed and both have a quadrant check, because a maximum-magnitude check alone passes for a half-moon.
+`GS2DScatter._unit` once shifted by 40. The mixer output is masked to 63 bits, so that left 23 and every value fell in `[0, 0.5)`: every pellet in one corner of the world, which the self-test caught because it bins slots into quadrants. **The same line existed in gs-combat's `GSSpread`**, where the symptom was invisible: the spread azimuth covered half a circle and every spread pattern was a half-moon that merely "felt off". Both are fixed and both have a quadrant check, because a maximum-magnitude check alone passes for a half-moon.
 
 ## A grid holding twice the pellets
 

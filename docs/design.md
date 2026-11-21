@@ -62,13 +62,13 @@ Two thousand pellets and forty players is 80,000 pair tests a tick done naively.
 
 ## Replication is 2D, deliberately
 
-`GS2DNetSync` declares position and velocity as `CUSTOM` with its own codecs rather than using dot-net's quantised vector types, which are three-component. A 2D game paying for a Z that is always zero wastes 40% of its position bandwidth, and on a world with a hundred visible entities that is the difference between fitting in a packet and not.
+`GS2DNetSync` declares position and velocity as `CUSTOM` with its own codecs rather than using gs-net's quantised vector types, which are three-component. A 2D game paying for a Z that is always zero wastes 40% of its position bandwidth, and on a world with a hundred visible entities that is the difference between fitting in a packet and not.
 
 **The radius is derived on receipt, not replicated.** Sending both lets them disagree by a rounding error and puts an entity's eat radius and its drawn radius in different places. `WORLD_EXTENT` must cover the arena and both peers must agree; too small and distant entities wrap to the wrong place.
 
 ## An administrator's noclip, freeze and speed are in the state
 
-`GS2DAdminModifiers` is the 2D counterpart of dot-player-controller's `GSFpsAdminModifiers`, for the same reason: each of the three is decided on the server and has to be *simulated* on the owning client, because that client predicts its own movement. A server that zeroed a velocity or skipped a collision on its own side only is simulating a player the client is not; the client's replay runs the ordinary motor, disagrees on every tick and is pulled back on every snapshot. The self-test keeps that as its negative control: the same replay with the bits stripped must land somewhere else.
+`GS2DAdminModifiers` is the 2D counterpart of gs-player-controller's `GSFpsAdminModifiers`, for the same reason: each of the three is decided on the server and has to be *simulated* on the owning client, because that client predicts its own movement. A server that zeroed a velocity or skipped a collision on its own side only is simulating a player the client is not; the client's replay runs the ordinary motor, disagrees on every tick and is pulled back on every snapshot. The self-test keeps that as its negative control: the same replay with the bits stripped must land somewhere else.
 
 - **A field, `GS2DState.admin`, not bits in `flags`.** `flags` is the game's, all sixteen bits, and game-hungario already uses several. The admin field is copied by `copy_from`, compared by `matches`, and replicated by `GS2DNetSync` as `net_admin` (`ADMIN_BITS`, 8). **A game's behaviour must declare `var net_admin: int`**; `push` reads it defensively so one that has not is still moved, but it will not predict an admin's change.
 - **The speed is a ladder** (`SPEED_STEPS`, the first-person one), because only an index travels. It scales acceleration with the top speed, so 2x is not a slide.

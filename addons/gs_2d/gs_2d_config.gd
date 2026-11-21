@@ -3,7 +3,7 @@ class_name GS2DConfig
 extends GSConfig
 
 ## Everything configurable about the 2D layer. Layered like every [GSConfig]:
-## exported defaults, then a JSON file, then [code]DOT_2D_*[/code] environment
+## exported defaults, then a JSON file, then [code]GS_2D_*[/code] environment
 ## variables, then [code]--2d-*[/code] arguments.
 
 @export_group("Simulation")
@@ -48,7 +48,7 @@ extends GSConfig
 
 
 func env_prefix() -> String:
-	return "DOT_2D_"
+	return "GS_2D_"
 
 
 func cli_prefix() -> String:

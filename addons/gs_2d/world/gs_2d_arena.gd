@@ -15,7 +15,7 @@ extends Node2D
 # No log channel: a container of positions with nothing outside the process to fail
 # against. Its service registration is logged by GSRegistry, and the one silent path
 # it had -- a refused register() -- is a programmer error and says so with push_error.
-const SERVICE := &"dot_2d_arena"
+const SERVICE := &"gs_2d_arena"
 
 ## An entity was registered or forgotten.
 signal entity_registered(id: int)

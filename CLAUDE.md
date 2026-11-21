@@ -4,7 +4,7 @@
 
 Read the family [CLAUDE.md](../../CLAUDE.md) first; this file is only what is specific to the 2D layer. Classes are `GS2D*`, because `class_name` is global.
 
-**The distributable is `addons/dot_2d/`.** It requires dot-core and dot-camera (both symlinked, `.gitignore`; `addons/dot_camera`) and names no class outside them: `GS2DCameraRig` takes its zoom and clamp arithmetic from `GSCameraZoom2D`. game-hungario is the one game on it.
+**The distributable is `addons/gs_2d/`.** It requires gs-core and gs-camera (both symlinked, `.gitignore`; `addons/gs_camera`) and names no class outside them: `GS2DCameraRig` takes its zoom and clamp arithmetic from `GSCameraZoom2D`. game-hungario is the one game on it.
 
 ## Read before
 
@@ -20,16 +20,16 @@ Read the family [CLAUDE.md](../../CLAUDE.md) first; this file is only what is sp
 | `core/` | `GS2DCommand` (aim, reach, move, buttons; `sanitise()`), `GS2DState`, `GS2DTunables` (`blob()`), `GS2DMassRules`, `GS2DAdminModifiers` |
 | `motion/` | `GS2DMotor` (`simulate()`, pure), `GS2DBody` (the seam), `GS2DBodyFlat` (analytic circles and a rectangle), `GS2DBodyPhysics` (unpredicted entities only) |
 | `world/` | `GS2DGrid`, `GS2DScatter`, `GS2DArena` |
-| `net/dot_2d_net_sync.gd` | `GS2DNetSync`: what to replicate, as data; 2D codecs, `WORLD_EXTENT`, `ADMIN_BITS` |
+| `net/gs_2d_net_sync.gd` | `GS2DNetSync`: what to replicate, as data; 2D codecs, `WORLD_EXTENT`, `ADMIN_BITS` |
 | `nodes/` | `GS2DController`, `GS2DSampler` (resolves the pointer), `GS2DCameraRig` |
-| `dot_2d_config.gd` | `GS2DConfig`: the optional layered document; `apply_to_controller`, `apply_to_scatter` |
-| `examples/dot_2d_selftest.tscn` | the suite; all offline, non-zero on failure |
+| `gs_2d_config.gd` | `GS2DConfig`: the optional layered document; `apply_to_controller`, `apply_to_scatter` |
+| `examples/gs_2d_selftest.tscn` | the suite; all offline, non-zero on failure |
 
-Paths above, except `examples/`, are in `addons/dot_2d/`.
+Paths above, except `examples/`, are in `addons/gs_2d/`.
 
 ## Running and testing
 
-The family's two steps ([family CLAUDE.md](../../CLAUDE.md#validating-anything)), then `godot --headless --path . res://examples/dot_2d_selftest.tscn`. Run it after any change to the motor, the grid or the scatter: the determinism check is the property every other guarantee here depends on, and it is not visible by reading the code.
+The family's two steps ([family CLAUDE.md](../../CLAUDE.md#validating-anything)), then `godot --headless --path . res://examples/gs_2d_selftest.tscn`. Run it after any change to the motor, the grid or the scatter: the determinism check is the property every other guarantee here depends on, and it is not visible by reading the code.
 
 ## Rules that bite
 
