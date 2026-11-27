@@ -2,12 +2,14 @@
 
 Deterministic 2D movement and world code for Godot 4, for games seen from above. It is the 2D counterpart of [GameSpice Player Controller](https://github.com/gamespice-platform/player-controller) and part of the [GameSpice](https://github.com/gamespice-platform) family. It needs [GameSpice Core](https://github.com/gamespice-platform/core) and nothing else.
 
+This is a GameSpice addon, MIT licensed and built with Claude Code. Its headless self-test (`res://examples/gs_2d_selftest.tscn`) runs offline. The code is in use: the games in [Zee's Games](https://zeesgames.com) are built on the GameSpice addons and run on live servers, and this is the 2D movement under one of them.
+
 It gives you three movement feels (top-down, thrust, and mass-based blob), a spatial hash for fast neighbour queries, seeded pellet fields, and `Vector2` replication specs. [game-hungario](https://github.com/zees-games/game-hungario) is built on it.
 
 ## Install
 
 1. Copy `addons/gs_2d/`, `addons/gs_core/` and `addons/gs_camera/` into your project.
-2. Enable both in *Project > Project Settings > Plugins*.
+2. Enable all three in *Project > Project Settings > Plugins*.
 
 ## Use
 
@@ -84,9 +86,13 @@ godot --headless --path . res://examples/gs_2d_selftest.tscn
 
 The self-test runs offline and exits non-zero on any failure.
 
-## Status
+## Used by
 
-Built and maintained with Claude Code. Every addon has a headless test suite and the suites pass, but little of this has been in front of real players yet. Please report rough edges by opening an issue.
+The only game that vendors it, because it is the one seen from above.
+
+- [Hungario](https://zeesgames.com/hungario) - movement, the spatial grid and the pellet fields
+
+The whole collection is at [zeesgames.com](https://zeesgames.com).
 
 ## Licence
 
